@@ -1,0 +1,19 @@
+target/
+
+# Artifacts (keep example schemas + README)
+artifacts/**
+!artifacts/example.multisig.json
+!artifacts/example.counter.json
+!artifacts/README.md
+!artifacts/.gitignore
+
+# Workbook run logs
+workbook/runs/**
+!workbook/runs/run-YYYYMMDD.md
+
+# Local env / secrets
+.env
+.env.*
+*.key
+*.pem
+keystore*.json

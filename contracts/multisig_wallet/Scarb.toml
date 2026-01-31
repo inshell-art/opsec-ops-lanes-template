@@ -1,0 +1,13 @@
+[package]
+name = "multisig_wallet"
+version = "0.1.0"
+edition = "2024_07"
+
+[dependencies]
+starknet = { workspace = true }
+openzeppelin_governance = { workspace = true }
+openzeppelin_utils = { workspace = true }
+
+[[target.starknet-contract]]
+sierra = true
+casm = true
