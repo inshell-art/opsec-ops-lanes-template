@@ -17,7 +17,7 @@ workbook/runs/**
 *.key
 *.pem
 keystore*.json
+.snfoundry_cache/
 
 # macOS
 .DS_Store
-
