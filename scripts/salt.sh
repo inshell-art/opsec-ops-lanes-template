@@ -23,5 +23,5 @@ else:
 
 next_value = now if now > last else last + 1
 state_file.write_text(str(next_value))
-print(next_value)
+print(hex(next_value))
 PY

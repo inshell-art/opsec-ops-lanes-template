@@ -7,6 +7,7 @@ multisig wallet contract, plus scripts + a workbook to rehearse submit/confirm/e
 
 - A **regular StarkNet contract** that enforces quorum through on-chain
   submit/confirm/execute calls.
+- A minimal wrapper around OpenZeppelin's `MultisigComponent` (v2.0.0) with no additional logic.
 - A reusable workspace with scripts and artifact templates for deployments.
 
 ## What this is not

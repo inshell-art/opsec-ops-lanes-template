@@ -6,7 +6,7 @@
 export NETWORK=devnet
 
 # RPC endpoint (required)
-export RPC=http://127.0.0.1:5050
+export RPC=http://127.0.0.1:5050/rpc
 
 # sncast account name and accounts file used for declare/deploy steps
 export ACCOUNT=deployer

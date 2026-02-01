@@ -20,6 +20,11 @@ Env vars:
 EOF
 }
 
+json_get() {
+  local key="$1"
+  python3 -c $'import sys, json\nkey=sys.argv[1]\nval=\"\"\nfor line in sys.stdin.read().splitlines():\n    line=line.strip()\n    if not line:\n        continue\n    try:\n        obj=json.loads(line)\n    except Exception:\n        continue\n    if not isinstance(obj, dict):\n        continue\n    if key in obj:\n        val=obj[key]\nprint(val)\n' "$key"
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --label) LABEL="$2"; shift 2;;
@@ -60,7 +65,7 @@ print(json.loads(Path("$COUNTER_FILE").read_text())["address"])
 PY
 )
 
-INCREMENT_SELECTOR=$(sncast selector --name increment | tail -n 1)
+INCREMENT_SELECTOR=$(starkli selector increment | tail -n 1)
 SALT=$("$ROOT_DIR/scripts/salt.sh")
 
 cat <<SUMMARY
@@ -73,32 +78,32 @@ SUMMARY
 
 SUBMIT_JSON=$(sncast --account "$SIGNER_A" --accounts-file "$ACCOUNTS_FILE" --json invoke --url "$RPC" \
   --contract-address "$MSIG_ADDR" --function submit_transaction \
-  --calldata "$COUNTER_ADDR" "$INCREMENT_SELECTOR" 0 "$SALT")
-SUBMIT_TX=$(echo "$SUBMIT_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["transaction_hash"])')
+  --calldata "$COUNTER_ADDR" "$INCREMENT_SELECTOR" 0x0 "$SALT")
+SUBMIT_TX=$(echo "$SUBMIT_JSON" | json_get transaction_hash)
 
-TX_ID=$(sncast --account "$SIGNER_A" --accounts-file "$ACCOUNTS_FILE" call --url "$RPC" \
+TX_CALL_JSON=$(sncast --json call --url "$RPC" \
   --contract-address "$MSIG_ADDR" --function hash_transaction \
-  --calldata "$COUNTER_ADDR" "$INCREMENT_SELECTOR" 0 "$SALT" \
-  | tail -n 1)
+  --calldata "$COUNTER_ADDR" "$INCREMENT_SELECTOR" 0x0 "$SALT")
+TX_ID=$(echo "$TX_CALL_JSON" | json_get response)
 
 CONFIRM_A_JSON=$(sncast --account "$SIGNER_A" --accounts-file "$ACCOUNTS_FILE" --json invoke --url "$RPC" \
   --contract-address "$MSIG_ADDR" --function confirm_transaction \
   --calldata "$TX_ID")
-CONFIRM_A_TX=$(echo "$CONFIRM_A_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["transaction_hash"])')
+CONFIRM_A_TX=$(echo "$CONFIRM_A_JSON" | json_get transaction_hash)
 
 CONFIRM_B_JSON=$(sncast --account "$SIGNER_B" --accounts-file "$ACCOUNTS_FILE" --json invoke --url "$RPC" \
   --contract-address "$MSIG_ADDR" --function confirm_transaction \
   --calldata "$TX_ID")
-CONFIRM_B_TX=$(echo "$CONFIRM_B_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["transaction_hash"])')
+CONFIRM_B_TX=$(echo "$CONFIRM_B_JSON" | json_get transaction_hash)
 
 EXECUTE_JSON=$(sncast --account "$SIGNER_A" --accounts-file "$ACCOUNTS_FILE" --json invoke --url "$RPC" \
   --contract-address "$MSIG_ADDR" --function execute_transaction \
-  --calldata "$COUNTER_ADDR" "$INCREMENT_SELECTOR" 0 "$SALT")
-EXECUTE_TX=$(echo "$EXECUTE_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["transaction_hash"])')
+  --calldata "$COUNTER_ADDR" "$INCREMENT_SELECTOR" 0x0 "$SALT")
+EXECUTE_TX=$(echo "$EXECUTE_JSON" | json_get transaction_hash)
 
-FINAL_VALUE=$(sncast --account "$SIGNER_A" --accounts-file "$ACCOUNTS_FILE" call --url "$RPC" \
-  --contract-address "$COUNTER_ADDR" --function get \
-  | tail -n 1)
+FINAL_CALL_JSON=$(sncast --json call --url "$RPC" \
+  --contract-address "$COUNTER_ADDR" --function get)
+FINAL_VALUE=$(echo "$FINAL_CALL_JSON" | json_get response)
 
 OUT_FILE="$OUT_DIR/rehearsal.counter.json"
 ROOT_DIR="$ROOT_DIR" NETWORK="$NETWORK" LABEL="$LABEL" MSIG_ADDR="$MSIG_ADDR" COUNTER_ADDR="$COUNTER_ADDR" \

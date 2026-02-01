@@ -20,6 +20,18 @@ Env vars:
 EOF
 }
 
+json_get() {
+  local key="$1"
+  python3 -c $'import sys, json\nkey=sys.argv[1]\nval=\"\"\nfor line in sys.stdin.read().splitlines():\n    line=line.strip()\n    if not line:\n        continue\n    try:\n        obj=json.loads(line)\n    except Exception:\n        continue\n    if not isinstance(obj, dict):\n        continue\n    if key in obj:\n        val=obj[key]\nprint(val)\n' "$key"
+}
+
+class_hash_from_utils() {
+  local contract="$1"
+  sncast utils class-hash --package multisig_wallet --contract-name "$contract" \
+    | awk '/Class Hash:/ {print $3}' \
+    | tail -n 1
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --initial) INITIAL_VALUE="$2"; shift 2;;
@@ -58,14 +70,21 @@ except Exception:
 PY
 )
 fi
+if ! [[ "$CLASS_HASH" =~ ^0x[0-9a-fA-F]+$ ]]; then
+  CLASS_HASH=""
+fi
 
 if [[ -z "$CLASS_HASH" || "$FORCE_DECLARE" == "1" ]]; then
   DECLARE_JSON=$(sncast --account "$ACCOUNT" --accounts-file "$ACCOUNTS_FILE" --json declare \
     --package multisig_wallet --contract-name ExampleCounter \
     --url "$RPC")
 
-  CLASS_HASH=$(echo "$DECLARE_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["class_hash"])')
-  DECLARE_TX=$(echo "$DECLARE_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["transaction_hash"])')
+  CLASS_HASH=$(echo "$DECLARE_JSON" | json_get class_hash)
+  DECLARE_TX=$(echo "$DECLARE_JSON" | json_get transaction_hash)
+
+  if [[ -z "$CLASS_HASH" ]]; then
+    CLASS_HASH=$(class_hash_from_utils ExampleCounter)
+  fi
 
   ROOT_DIR="$ROOT_DIR" NETWORK="$NETWORK" CLASS_HASH="$CLASS_HASH" DECLARE_TX="$DECLARE_TX" CLASS_FILE="$CLASS_FILE" \
   python3 - <<'PY'
@@ -92,8 +111,14 @@ DEPLOY_JSON=$(sncast --account "$ACCOUNT" --accounts-file "$ACCOUNTS_FILE" --jso
   --class-hash "$CLASS_HASH" --url "$RPC" \
   --constructor-calldata "$INITIAL_VALUE")
 
-ADDRESS=$(echo "$DEPLOY_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["contract_address"])')
-DEPLOY_TX=$(echo "$DEPLOY_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["transaction_hash"])')
+ADDRESS=$(echo "$DEPLOY_JSON" | json_get contract_address)
+DEPLOY_TX=$(echo "$DEPLOY_JSON" | json_get transaction_hash)
+
+if [[ -z "$ADDRESS" || -z "$DEPLOY_TX" ]]; then
+  echo "Failed to parse deploy output." >&2
+  echo "$DEPLOY_JSON" >&2
+  exit 1
+fi
 
 OUT_FILE="$OUT_DIR/counter.json"
 ROOT_DIR="$ROOT_DIR" NETWORK="$NETWORK" CLASS_HASH="$CLASS_HASH" ADDRESS="$ADDRESS" DEPLOY_TX="$DEPLOY_TX" \
