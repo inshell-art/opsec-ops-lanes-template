@@ -1,0 +1,29 @@
+{
+  "network": "sepolia",
+  "lane": "lane2_deploy",
+  "signer_alias": "SEPOLIA_DEPLOY_SW_A",
+  "tx": {
+    "to": "0x0MULTISIG_FACTORY_OR_CLASS",
+    "entrypoint": "deploy_multisig",
+    "calldata": [
+      "SEPOLIA_GOV_SW_A",
+      "SEPOLIA_GOV_HW_B",
+      2
+    ],
+    "value": "0"
+  },
+  "semantic": {
+    "summary": "Deploy GOV multisig (2-of-2) with signers GOV_SW_A + GOV_HW_B.",
+    "expected_effect": "A new multisig contract address is created and recorded as SEPOLIA_GOV_MSIG.",
+    "risk": "medium",
+    "notes": "This is a toy example; real deployments must verify class hash and constructor args."
+  },
+  "hashes": {
+    "intent_hash": "0xINTENT_HASH_PLACEHOLDER",
+    "bundle_hash": "0xBUNDLE_HASH_PLACEHOLDER"
+  },
+  "meta": {
+    "generated_at": "2026-02-04T00:00:00Z",
+    "tool": "template"
+  }
+}
