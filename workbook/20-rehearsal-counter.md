@@ -1,5 +1,7 @@
 # Rehearsal: Counter flow
 
+Lane note: treat rehearsal as a controlled **write** (Operate lane) on Sepolia/Mainnet.
+
 ## Preparation
 
 - [ ] Multisig + Counter deployed on the target network.
