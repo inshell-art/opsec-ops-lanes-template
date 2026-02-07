@@ -1,14 +1,12 @@
-# OPSEC × Ops-lanes Signer Map (Template) — compartments + signer aliases + two-phase rollout
+# OPSEC × Ops-lanes Signer Map (Inshell)
 
-This document is the **single source of truth** for:
+This document merges:
 
-- OPSEC compartments (PUBLIC / OPS / HOT / DEPLOYER / ADMIN / TREASURY / WATCH)
-- a lane-agnostic **signer alias** scheme (so your runbooks + agents never confuse signers)
-- a two-phase rollout (Sepolia rehearsal → Mainnet)
+- **OPSEC compartments** (where actions happen, what never mixes)
+- **Ops Lanes** (who is allowed to do what, with what checks/approvals)
+- **Signer map** (which keys/accounts exist, what they are used for, and where they live)
 
-It is designed to pair with: `ops-lanes-agent.md`.
-
-It is written as a **guideline table** you can follow during rehearsal (devnet/Sepolia) and later mainnet operations.
+It is written so you can keep it in a **public template repo** without leaking secrets. No private keys, no seeds, no real RPC URLs.
 
 ---
 
@@ -16,206 +14,198 @@ It is written as a **guideline table** you can follow during rehearsal (devnet/S
 
 **Compartmentation beats cleverness.**
 
-- Put different kinds of actions into different “places” (browser/profile/OS/device).
-- Keep “eyes” (monitoring) separate from “hands” (signing).
-- Prefer **scripted ops + runbook/workbook discipline** over ad-hoc clicking.
+- Keep **eyes** (monitoring/browsing) separate from **hands** (signing).
+- Prefer **intent → checks → approval → apply** over ad‑hoc clicking.
+- Treat any “shared” medium as **untrusted input** unless you verify it.
 
 ---
 
-## 1) Roles & vocabulary
+## 1) Roles (compartments)
 
-- **PUBLIC**: your open identity + browsing + open-source presence.
-- **OPS**: infrastructure and billing consoles (Cloudflare, registrar). No wallets here.
-- **HOT**: low-stakes wallet used like a normal user (tiny funds, disposable).
-- **ADMIN**: protocol authority (ownership/roles/wiring); high-impact operations.
+- **PUBLIC**: open identity + browsing + OSS presence.
+- **OPS**: infra/billing consoles (Cloudflare/registrar/DNS). No wallets.
+- **HOT**: low-stakes “normal user” wallet (tiny funds, disposable).
+- **DEPLOYER**: declare/deploy only; must end with **zero privilege**.
+- **GOV (ADMIN)**: protocol authority (ownership/roles/wiring).
 - **TREASURY**: custody of value; rare outflows.
-- **DEPLOYER**: tool identity used only to declare/deploy; must end with **zero privilege**.
-- **WATCH**: watch-only monitoring (explorer watchlists, address book).
+- **WATCH**: monitoring only.
 
 ---
 
-## 1.1) Signer aliases (lane-agnostic)
+## 2) Phase split
 
-You do **not** need lane numbers inside signer aliases.
+### Phase A — Sepolia rehearsal (low stakes)
+Goal: learning + speed.
 
-- Aliases encode **network + power domain + signer type** and stay stable.
-- Lane permissions live in your lane policy (agent-enforced allowlists), not in names.
+- You may run multiple signers on one machine user, but still keep role separation.
+- Use keystore mode for CLI signers; Ledger is recommended as 2nd factor.
 
-### Alias scheme
+### Phase B — Mainnet (high stakes)
+Goal: reduce attack surface and correlated mistakes.
+
+- Privileged signing happens only inside dedicated signing environments.
+- Daily OS is not used for privileged signing (no GOV/TREASURY/DEPLOYER signing).
+
+---
+
+## 3) Recommended OS layout (simple and strong)
+
+You described:
+
+- **OS1**: general-purpose macOS on internal disk (dev/browse/ops)
+- **OS2**: dedicated signing OS (Admin/GOV domain)
+- **OS3**: dedicated signing OS (Treasury domain)
+- OS2 + OS3 live on the same external SSD (two bootable volumes)
+
+This layout is good **if** you also add a controlled sharing mechanism for non-secret ops files.
+
+---
+
+## 4) “Airlock” for shared ops files (not an enclave)
+
+You *can* call it an “enclave” informally, but in security terminology an **enclave** usually means hardware-enforced isolated execution (e.g., Secure Enclave / SGX).  
+What you want here is a **transfer zone**. Call it an **AIRLOCK**.
+
+### What AIRLOCK is
+A shared folder/volume used to move **non-secret** ops bundles between OSes without copy/paste.
+
+- Contains: `intent.json`, `checks.json`, `approval.json`, `txs.json`, snapshots, logs.
+- Does **not** contain: keystores, account JSON with secrets, passwords, seeds, `.env`.
+
+### How to implement AIRLOCK (macOS-friendly)
+On the external SSD, create a third APFS volume (or partition) called:
+
+- `AIRLOCK`
+
+Then use a fixed directory structure such as:
+
+```
+AIRLOCK/
+  bundles/
+    sepolia/<run_id>/
+    mainnet/<run_id>/
+  inbox/
+    from-os1/
+    from-os2/
+    from-os3/
+  outbox/
+    to-os2/
+    to-os3/
+  archive/
+```
+
+The only thing that needs to be shared is the **bundle folder** for a given run.
+
+### Critical extra rule (integrity): shared files are untrusted
+Treat anything read from AIRLOCK as **untrusted input**, even if you wrote it yourself earlier.
+
+On the signing OS (OS2/OS3), before any signature:
+
+1) Copy the run bundle from AIRLOCK into a local working directory (example):
+   - `~/ops/bundles/<run_id>/`
+
+2) Generate and verify a **bundle manifest**:
+
+- `bundle_manifest.json` contains SHA256 hashes of immutable files.
+
+3) Freeze immutables:
+- After approval, these files must never change:
+  - `intent.json`
+  - `checks.json`
+  - `approval.json`
+  - `policy.json` (if present)
+  - `addresses.json` (if present)
+
+4) Allow only these outputs to change:
+- `txs.json`
+- `snapshots/*`
+- `receipts/*`
+- `logs/*`
+
+5) Verify on-chain reality:
+- Do not trust `txs.json` alone.
+- Derive / confirm the target msig operation from chain state/events and match it back to the approved intent hash.
+
+This rule is how you get “shared bundles” without re-introducing “clipboard ops”.
+
+---
+
+## 5) Signer alias scheme (lane-agnostic)
+
+Avoid lane numbers inside signer names. Lanes are enforced by policy.
+
+Format:
 
 `<NET>_<DOMAIN>_<TYPE>_<A/B>`
 
-- `NET`: `SEPOLIA` or `MAINNET`
-- `DOMAIN`: `DEPLOY`, `GOV`, `TREASURY`, `HOT_USER`
-- `TYPE`: `SW` (software keystore) or `HW` (Ledger)
-- `A/B`: signer index for quorum setups (2-of-2: A + B)
+- `NET`: `SEPOLIA` / `MAINNET`
+- `DOMAIN`: `DEPLOY` / `GOV` / `TREASURY`
+- `TYPE`: `SW` (software keystore) / `HW` (Ledger)
+- `A/B`: signer index for 2-of-2
 
-### Recommended alias set
+Example set (per network):
 
-**Sepolia**
 - `SEPOLIA_DEPLOY_SW_A`
 - `SEPOLIA_GOV_SW_A`
 - `SEPOLIA_GOV_HW_B`
 - `SEPOLIA_TREASURY_SW_A`
 - `SEPOLIA_TREASURY_HW_B`
-- `SEPOLIA_GOV_MSIG`
-- `SEPOLIA_TREASURY_MSIG`
-- `SEPOLIA_HOT_USER_BRAAVOS` (never used for lanes)
-
-**Mainnet**
-- `MAINNET_DEPLOY_SW_A`
-- `MAINNET_GOV_SW_A`
-- `MAINNET_GOV_HW_B`
-- `MAINNET_TREASURY_SW_A`
-- `MAINNET_TREASURY_HW_B`
-- `MAINNET_GOV_MSIG`
-- `MAINNET_TREASURY_MSIG`
-- `MAINNET_HOT_USER_BRAAVOS` (never used for lanes)
-
-### Role → alias mapping
-
-| OPSEC role | Sepolia alias | Mainnet alias |
-|---|---|---|
-| DEPLOYER | `SEPOLIA_DEPLOY_SW_A` | `MAINNET_DEPLOY_SW_A` |
-| ADMIN_MAC | `SEPOLIA_GOV_SW_A` | `MAINNET_GOV_SW_A` |
-| LEDGER_ADMIN | `SEPOLIA_GOV_HW_B` | `MAINNET_GOV_HW_B` |
-| TREASURY_MAC | `SEPOLIA_TREASURY_SW_A` | `MAINNET_TREASURY_SW_A` |
-| LEDGER_TREASURY | `SEPOLIA_TREASURY_HW_B` | `MAINNET_TREASURY_HW_B` |
-| ADMIN_MSIG | `SEPOLIA_GOV_MSIG` | `MAINNET_GOV_MSIG` |
-| TREASURY_MSIG | `SEPOLIA_TREASURY_MSIG` | `MAINNET_TREASURY_MSIG` |
-| HOT | `SEPOLIA_HOT_USER_BRAAVOS` | `MAINNET_HOT_USER_BRAAVOS` |
 
 ---
 
-## 1.2) Default lane allowlists (starter)
+## 6) Phase B signer placement (Mainnet recommended)
 
-Treat these as sane defaults; your agent enforces them via allowlists.
+### GOV / ADMIN multisig (2-of-2)
+- `MAINNET_GOV_SW_A` → keystore signer on **OS2**
+- `MAINNET_GOV_HW_B` → Ledger signer used on **OS2**
+- Multisig address: `MAINNET_GOV_MSIG`
 
-- **Lane 0/1 (Observe/Plan)**: no signers required (watch-only). Never load keystores.
-- **Lane 2 (Deploy)**: allow `*_DEPLOY_SW_A` only.
-- **Lane 3 (Handoff/Lockdown)**:
-  - allow `*_DEPLOY_SW_A` for the “grant/transfer from deployer” steps
-  - allow `*_GOV_*` for the “accept/execute via governance” steps
-- **Lane 5 (Govern)**:
-  - governance changes: allow `*_GOV_SW_A` + `*_GOV_HW_B` (2-of-2 via `*_GOV_MSIG`)
-  - treasury changes: allow `*_TREASURY_SW_A` + `*_TREASURY_HW_B` (2-of-2 via `*_TREASURY_MSIG`)
-- **HOT user actions**: never part of lanes; never allow `*_HOT_USER_*` in any lane.
+### TREASURY multisig (2-of-2)
+- `MAINNET_TREASURY_SW_A` → keystore signer on **OS3**
+- `MAINNET_TREASURY_HW_B` → Ledger signer used on **OS3**
+- Multisig address: `MAINNET_TREASURY_MSIG`
 
-## 2) Phase split
+### HOT user wallet
+- `MAINNET_HOT_USER` → Braavos extension on OS1 (separate browser profile)
+- Never admin. Never treasury.
 
-### Phase A — Sepolia (rehearsal, low stakes)
-Goal: speed + learning. Accept reduced isolation, but keep role boundaries intact.
-
-- ADMIN/TREASURY use **CLI keystores with different seeds** on the same machine/user.
-- Ledger is used as the second factor for 2-of-2 multisigs (recommended).
-
-### Phase B — Mainnet (high stakes)
-Goal: reduce attack surface and human error.
-
-- Use a **Signing OS** on an **external SSD** for admin/treasury signing.
-- Daily OS stays for browsing/dev/ops, not for privileged signing.
+### WATCH
+- Can run anywhere (OS1 included). Watch-only only.
 
 ---
 
-## 3) Structure table — Phase A (Sepolia)
+## 7) LLM / agent policy (the “big pivot” rules)
 
-| Role | Where (device / OS / browser) | Wallet / signer | Secrets location | Primary actions | Hard boundaries (never do) |
-|---|---|---|---|---|---|
-| **PUBLIC** | Daily macOS → Chrome “Public” profile | None | None | Browse, OSS, docs, socials, reading | No wallets/extensions; no infra billing consoles; don’t handle keys here |
-| **OPS** | Daily macOS → Firefox “Ops” profile (local-only) | None | Ops email 2FA secrets in KeePassXC | Cloudflare Pages settings, DNS, registrar, billing | No wallet extensions; no signing; avoid mixing public identity sessions |
-| **HOT** | Daily macOS → separate browser profile (not Public/Ops) | **Braavos** (extension) | HOT seed on paper (disposable) + KeePassXC for passwords | Normal user actions: mint/test with tiny funds | Never hold protocol roles/ownership; never store large funds; rotate if suspicious |
-| **ADMIN_MAC** | Daily macOS → terminal (same OS user allowed on Sepolia) | CLI keystore signer | `ADMIN_MAC` keystore (encrypted) + password in KeePassXC | Sign multisig ops for admin (submit/confirm/execute) | Don’t browse; don’t install random tools; don’t reuse treasury keystore |
-| **TREASURY_MAC** | Daily macOS → terminal (same OS user allowed on Sepolia) | CLI keystore signer | `TREASURY_MAC` keystore (encrypted) + password in KeePassXC | Sign multisig ops for treasury (submit/confirm/execute) | Don’t browse; never reuse ADMIN keystore; keep funds small on Sepolia |
-| **LEDGER_ADMIN** | Ledger device | Ledger signer account (admin) | Ledger recovery phrase on metal | Second factor for **ADMIN_MSIG** | Don’t share this key with HOT; verify destination + calldata before approving |
-| **LEDGER_TREASURY** | Ledger device | Ledger signer account (treasury) | Ledger recovery phrase on metal | Second factor for **TREASURY_MSIG** | Same: verify carefully; treasury outflows are rare and deliberate |
-| **ADMIN_MSIG** | On-chain contract (OZ multisig) | 2-of-2: `ADMIN_MAC` + `LEDGER_ADMIN` | N/A | Holds protocol sovereignty | Should be the only admin/owner/role-holder (see mapping below) |
-| **TREASURY_MSIG** | On-chain contract (OZ multisig) | 2-of-2: `TREASURY_MAC` + `LEDGER_TREASURY` | N/A | Custody and value movement | Kept separate from ADMIN_MSIG to limit blast radius |
-| **DEPLOYER** | Daily macOS → terminal | CLI keystore signer | `DEPLOYER` keystore (encrypted) + password in KeePassXC | Declare + deploy only | Must transfer ownership/roles to ADMIN_MSIG then end with **zero privilege** |
-| **WATCH** | Any environment (including Public/Ops) | None | None | Explorer watchlists, address book, alerts | Watch-only: do not sign from monitoring contexts |
+**Use LLMs to write. Do not use LLMs to run.**
 
-### Admin power mapping (what ADMIN_MSIG should control)
-After handoff:
-- **PathNFT**: holder of `DEFAULT_ADMIN_ROLE`
-- **PathMinter**: holder of `DEFAULT_ADMIN_ROLE`
-- **PathMinterAdapter**: `owner`
+### Allowed
+- Use Codex/LLMs to **author and refactor** scripts/runbooks (Lane 0/1).
+- Use LLMs to explain errors, format runbooks, and improve documentation.
 
-System roles remain system-owned:
-- **PathNFT `MINTER_ROLE`** → PathMinter contract
-- **PathMinter `SALES_ROLE`** → Adapter (or your sales pipeline contract)
+### Not allowed in “apply”
+- No LLM calls (online or local) during Lane 2+ apply on Mainnet.
+- No “agent decides what to execute” at apply time.
+- Apply must run deterministic code from disk.
+
+### Pinning (required)
+- Any script that can produce a chain write must be pinned:
+  - git commit hash or tag recorded in `run.json`
+- Apply refuses if the working tree is dirty or the commit hash is not recorded.
+
+### Review (required)
+- Treat all LLM output as **untrusted** until reviewed and committed.
+- Never paste secrets into an LLM (keys, seeds, passwords, tokens).
 
 ---
 
-## 4) Structure table — Phase B (Mainnet)
-
-| Role | Where (device / OS / browser) | Wallet / signer | Secrets location | Primary actions | Hard boundaries (never do) |
-|---|---|---|---|---|---|
-| **PUBLIC** | Daily macOS → Chrome “Public” | None | None | Browse, OSS, socials | No wallets/extensions; no infra consoles |
-| **OPS** | Daily macOS → Firefox “Ops” | None | Ops email 2FA secrets in KeePassXC | Cloudflare/registrar/DNS/billing | No wallets; don’t sign; don’t mix public identity sessions |
-| **HOT** | Daily macOS → separate browser profile | Braavos extension | HOT seed on paper (disposable) | Normal user actions with tiny funds | Never admin; never treasury |
-| **SIGNING_OS** | **External SSD macOS** (boot only when signing) | CLI + Ledger | SSD encrypted (FileVault), minimal apps | The only place where admin/treasury keystores live and are used | No browsing; no email; no random installs; update carefully |
-| **ADMIN_MAC** | SIGNING_OS terminal | CLI keystore signer | admin keystore + password in KeePassXC (stored in Signing OS) | Admin multisig signing | Don’t co-mingle with treasury; verify intent |
-| **TREASURY_MAC** | SIGNING_OS terminal | CLI keystore signer | treasury keystore + password in KeePassXC (Signing OS) | Treasury multisig signing | Outflows are rare; require deliberate runbook checks |
-| **LEDGER_ADMIN** | Ledger device | Ledger signer account (admin) | Ledger recovery phrase on metal | Admin second factor | Verify on-device before approving |
-| **LEDGER_TREASURY** | Ledger device | Ledger signer account (treasury) | Ledger recovery phrase on metal | Treasury second factor | Same; rare outflows |
-| **ADMIN_MSIG** | On-chain OZ multisig instance | 2-of-2 | N/A | Own protocol authority | Sole admin/owner/role-holder |
-| **TREASURY_MSIG** | On-chain OZ multisig instance | 2-of-2 | N/A | Custody | Separate from admin |
-| **DEPLOYER** | SIGNING_OS terminal (or separate deploy-only OS) | CLI keystore signer | deployer keystore + password | Declare + deploy only | Must handoff and end with zero privilege |
-| **WATCH** | Anywhere | None | None | Monitoring | Watch-only |
-
----
-
-## 5) Key storage policy (simple, strict)
-
-- **Ledger recovery phrase**: metal backup, stored safely and separately from devices.
-- **ADMIN/TREASURY keystores**: encrypted files; passwords in KeePassXC.
-- **HOT seed**: paper is sufficient (disposable); rotate freely.
-- Never store mnemonics/private keys in:
-  - repo files
-  - screenshots
-  - chat logs
-  - cloud notes
-  - shell history
-
----
-
-## 6) Secrets-out-of-repo rules (Codex + CI safety)
-
-- `.env` and keystores live **outside** the git repo or are gitignored.
-- Cloudflare Pages uses **Git integration** (CF pulls and builds); avoid putting CF deploy tokens into GitHub Actions secrets.
-- Run gitleaks/secret scan before pushing public repos.
-- Prefer committed `*.example` templates; keep real artifacts and run logs untracked.
-
----
-
-## 7) Rehearsal discipline (the “boring ops” standard)
-
-### Scripts (automation)
-- Generate exact calldata, salts, tx ids.
-- Write artifacts (addresses, tx hashes, outputs).
-- Print an **intent summary** before every invoke.
-
-### Runbook (safety)
-- Preflight checks: chain, RPC, accounts funded, correct addresses.
-- Stop-and-verify: target contract, selector, calldata meaning, expected effect.
-- Recovery steps: what to retry vs what to stop and investigate.
-
-### Workbook (evidence)
-- Step-by-step checklist.
-- Fill in: class hash, addresses, tx hashes, observed outputs.
-- Compare runs to catch drift.
-
-### Artifacts (truth)
-- addresses.json / txs.json / metadata snapshots / SVG outputs.
-- Environment-scoped (devnet/sepolia/mainnet).
-- Avoid retyping by reading artifacts in later steps.
-
----
-
-## 8) Minimum “never” list
+## 8) Never list (non-negotiable)
 
 - Never do privileged signing from PUBLIC or OPS contexts.
-- Never let HOT wallet hold admin roles or meaningful funds.
-- Never keep admin/treasury secrets in the repo or CI logs.
-- Never sign a Ledger prompt without verifying target + intent.
-- Never mix browsing and signing in the Mainnet Signing OS.
+- Never store admin/treasury secrets in the repo, chat logs, screenshots, CI logs.
+- Never let HOT considered “safe enough” for privileged roles.
+- Never sign (Ledger or keystore) unless:
+  - chain id matches,
+  - signer matches policy,
+  - target identity matches expected,
+  - approved intent hash matches the operation being confirmed.
 
