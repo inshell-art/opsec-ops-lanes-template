@@ -1,0 +1,137 @@
+{
+  "network": "sepolia",
+  "chain_id": "SN_SEPOLIA",
+  "rpc_allowlist": [
+    "https://starknet-sepolia.g.alchemy.com/v2/<API_KEY>",
+    "https://starknet-sepolia.infura.io/v3/<API_KEY>",
+    "https://starknet-sepolia.public.blastapi.io"
+  ],
+  "signer_aliases": {
+    "SEPOLIA_DEPLOY_SW_A": {
+      "type": "keystore",
+      "account_json_env": "SEPOLIA_DEPLOY_ACCOUNT_JSON",
+      "keystore_env": "SEPOLIA_DEPLOY_KEYSTORE_JSON"
+    },
+    "SEPOLIA_GOV_SW_A": {
+      "type": "keystore",
+      "account_json_env": "SEPOLIA_GOV_ACCOUNT_JSON",
+      "keystore_env": "SEPOLIA_GOV_KEYSTORE_JSON"
+    },
+    "SEPOLIA_GOV_HW_B": {
+      "type": "ledger"
+    },
+    "SEPOLIA_TREASURY_SW_A": {
+      "type": "keystore",
+      "account_json_env": "SEPOLIA_TREASURY_ACCOUNT_JSON",
+      "keystore_env": "SEPOLIA_TREASURY_KEYSTORE_JSON"
+    },
+    "SEPOLIA_TREASURY_HW_B": {
+      "type": "ledger"
+    }
+  },
+  "lanes": {
+    "lane0_observe": {
+      "writes": false,
+      "allowed_ops": [
+        "read",
+        "snapshot",
+        "diff",
+        "simulate"
+      ]
+    },
+    "lane1_plan": {
+      "writes": false,
+      "allowed_ops": [
+        "build",
+        "compile",
+        "derive_intent",
+        "checks_readonly",
+        "simulate"
+      ]
+    },
+    "lane2_deploy": {
+      "writes": true,
+      "allowed_signers": [
+        "SEPOLIA_DEPLOY_SW_A"
+      ],
+      "allowed_ops": [
+        "declare",
+        "deploy"
+      ],
+      "required_checks": [
+        "chain_id",
+        "rpc_allowlist",
+        "signer_allowlist",
+        "class_hash",
+        "post_deploy_snapshot"
+      ],
+      "fee_policy": {
+        "max_fee_native": "<SET_ME>"
+      }
+    },
+    "lane3_handoff_lockdown": {
+      "writes": true,
+      "allowed_signers": [
+        "SEPOLIA_DEPLOY_SW_A",
+        "SEPOLIA_GOV_SW_A",
+        "SEPOLIA_GOV_HW_B"
+      ],
+      "allowed_ops": [
+        "grant_role",
+        "revoke_role",
+        "transfer_ownership",
+        "accept_ownership",
+        "multisig_submit",
+        "multisig_confirm",
+        "multisig_execute"
+      ],
+      "required_checks": [
+        "chain_id",
+        "rpc_allowlist",
+        "signer_allowlist",
+        "target_identity",
+        "preconditions",
+        "postconditions"
+      ]
+    },
+    "lane5_govern": {
+      "writes": true,
+      "allowed_signers": [
+        "SEPOLIA_GOV_SW_A",
+        "SEPOLIA_GOV_HW_B",
+        "SEPOLIA_TREASURY_SW_A",
+        "SEPOLIA_TREASURY_HW_B"
+      ],
+      "allowed_ops": [
+        "multisig_submit",
+        "multisig_confirm",
+        "multisig_execute"
+      ],
+      "required_checks": [
+        "chain_id",
+        "rpc_allowlist",
+        "signer_allowlist",
+        "target_identity",
+        "preconditions",
+        "simulate",
+        "postconditions"
+      ],
+      "multisig_rules": {
+        "gov": {
+          "quorum": 2,
+          "signers": [
+            "SEPOLIA_GOV_SW_A",
+            "SEPOLIA_GOV_HW_B"
+          ]
+        },
+        "treasury": {
+          "quorum": 2,
+          "signers": [
+            "SEPOLIA_TREASURY_SW_A",
+            "SEPOLIA_TREASURY_HW_B"
+          ]
+        }
+      }
+    }
+  }
+}

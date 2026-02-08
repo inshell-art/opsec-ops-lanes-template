@@ -1,9 +1,0 @@
-/devnet/*
-/sepolia/*
-/mainnet/*
-
-# Keep example schemas and README
-!example.multisig.json
-!example.counter.json
-!README.md
-!.gitignore

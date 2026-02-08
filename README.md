@@ -1,80 +1,61 @@
-# StarkNet OZ Multisig
+# opsec-ops-lanes-template
 
-A minimal Cairo workspace that wraps OpenZeppelin's `MultisigComponent` into a deployable
-multisig wallet contract, plus scripts + a workbook to rehearse submit/confirm/execute.
+A public, repo-safe template for running **intent-gated onchain operations** with an **agent** under a practical **OPSEC compartment model**.
 
-## What this is
+This repo contains:
+- `docs/ops-lanes-agent.md` — the “Ops Lanes” contract between an agent and a human operator (keystore-mode signing, no accounts-file mode).
+- `docs/opsec-ops-lanes-signer-map.md` — OPSEC compartments + signer aliases + phase split (Sepolia rehearsal → Mainnet).
+- `policy/*.example.json` — example lane policies (RPC allowlist, signer allowlists, fee thresholds, required checks).
+- `schemas/*` — starter JSON schemas for intent/check/approval artifacts.
+- `examples/*` — toy examples (no real addresses, no secrets).
+- `codex/BOOTSTRAP.md` — maintainer steps to create and publish the template repo.
+- `codex/BUSINESS_REPO_ADOPTION.md` — quick checklist for adopting this template inside a business repo.
 
-- A **regular StarkNet contract** that enforces quorum through on-chain
-  submit/confirm/execute calls.
-- A minimal wrapper around OpenZeppelin's `MultisigComponent` (v2.0.0) with no additional logic.
-- A reusable workspace with scripts and artifact templates for deployments.
+## What this template is (and is not)
 
-## What this is not
+**It is:**
+- A disciplined process for *how* to deploy, handoff, and govern using deterministic intents + checks + approvals.
+- A way to make agent-assisted ops safer by forcing “meaning approval” and “reality verification”.
 
-- Not a multisig **account** contract.
-- Not governance tooling or a policy layer (no timelock, roles, or upgrades).
+**It is not:**
+- A wallet tutorial.
+- A full security guarantee.
 
-## Versions (pinned)
+## Secrets rule
 
-This workspace targets Cairo/Scarb **2.12.x** and pins OpenZeppelin to avoid
-version drift.
+This repo **must stay public-safe**:
+- No seed phrases, private keys, keystore JSON, 2FA backups, RPC URLs with embedded credentials, or screenshots.
+- Keystores and passwords live **outside the repo** (e.g., in a local encrypted directory or dedicated Signing OS).
 
-- `openzeppelin_governance = "=2.0.0"`
-- `openzeppelin_utils = "=2.0.0"`
+## How to use this template in a business repo
 
-These pins keep the dependency graph compatible with Cairo 2.12.0.
+Note: Fork/copy/submodule this repo into your business repo and keep secrets out of git (keystore/account.json, seed phrases, 2FA backups, RPC credentials). Commit only `*.example` templates.
 
-## Quickstart
+Pick one approach:
 
-Build:
+### Option A — Git submodule (recommended for shared rules)
+Add this repo to your business repo at a stable path (example: `ops-template/`), then reference docs/policy from there.
 
-```bash
-scarb build
-```
+### Option B — Git subtree (simpler than submodules for some teams)
+Vendor the template into your repo and periodically pull updates.
 
-Set env vars (see `scripts/env.example.sh`):
+### Option C — Copy the docs
+Copy `docs/` and `policy/` and maintain your own fork.
 
-```bash
-source scripts/env.example.sh
-```
+## Suggested private repo layout (business repo)
 
-Deploy the example Counter (devnet or testnet):
+Keep “rules” separate from “instance data”:
 
-```bash
-./scripts/deploy_example_counter.sh
-```
+- `ops-template/` (this repo, read-only)
+- `ops/` (your instance: runbooks, lane policy, artifacts)
+- `artifacts/<network>/...` (generated, commit only what you want public)
 
-Deploy a multisig instance:
+See `docs/integration.md` for a full example.
 
-```bash
-./scripts/deploy_multisig.sh --label primary
-```
+## License
 
-Rehearse the flow against the Counter:
+MIT (see `LICENSE`).
 
-```bash
-./scripts/rehearse_counter_flow.sh --label primary
-```
+## Contributing
 
-Artifacts are written to `artifacts/<network>` (default: `artifacts/devnet`).
-## Lifecycle (submit -> confirm -> execute)
-
-Each action is a separate on-chain transaction:
-
-1. Submit: a signer proposes a call (target + selector + calldata + salt).
-2. Confirm: other signers confirm the proposal.
-3. Execute: any signer executes once quorum is met.
-
-## Security notes
-
-- Signers should be **independent account contracts**.
-- 2-of-2 maximizes safety but reduces availability (both must be online).
-- Always verify the target address, selector, calldata, and salt before execution.
-
-## Docs
-
-- Runbook: `workbook/00-runbook.md`
-- Deploy checklist: `workbook/10-deploy.md`
-- Rehearsal checklist: `workbook/20-rehearsal-counter.md`
-- Run logs template: `workbook/runs/run-YYYYMMDD.md`
+PRs that improve safety, clarity, and reproducibility are welcome. See `CONTRIBUTING.md`.
