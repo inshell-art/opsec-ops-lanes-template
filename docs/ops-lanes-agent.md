@@ -215,10 +215,6 @@ Each lane is defined by: **Signer(s), Allowed ops, Required checks, Approval rul
 
 ## 6) Remote CI + Local CD (recommended shape)
 
-**Goal:** rehearsals must translate into **deterministic CI jobs**. The intent is to
-replace agent decision-making with boring, scripted automation. If a step cannot be
-run without an agent, it is **not mainnet-ready**.
-
 ### Remote CI (no secrets)
 - Build/test
 - Produce release bundle (compiled artifacts + hashes + policies)
@@ -247,3 +243,4 @@ Refuse if any of these occur:
 - intent/bundle hash mismatch across files
 - AIRLOCK integrity check fails (manifest mismatch / immutable changed)
 - postconditions fail after tx
+
