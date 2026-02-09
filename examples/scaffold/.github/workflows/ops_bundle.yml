@@ -1,0 +1,71 @@
+name: ops bundle
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: "Target network (sepolia/mainnet/devnet)"
+        required: true
+        default: "sepolia"
+      lane:
+        description: "Ops lane (lane1/lane2/...)"
+        required: true
+        default: "lane1"
+      run_id:
+        description: "Optional run id (defaults to GitHub run id)"
+        required: false
+        default: ""
+      open_pr:
+        description: "Open PR with bundle folder"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Scarb
+        uses: software-mansion/setup-scarb@v1
+
+      - name: Setup Starknet Foundry
+        uses: software-mansion/setup-starknet-foundry@v1
+
+      - name: Build
+        run: scarb build
+
+      - name: Test
+        run: snforge test
+
+      - name: Generate bundle
+        id: bundle
+        run: |
+          NETWORK="${{ inputs.network }}" \
+          LANE="${{ inputs.lane }}" \
+          RUN_ID="${{ inputs.run_id }}" \
+          ops/tools/bundle.sh
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ops-bundle-${{ inputs.network }}-${{ steps.bundle.outputs.run_id }}
+          path: bundles/${{ inputs.network }}/${{ steps.bundle.outputs.run_id }}
+
+      - name: Open PR with bundle
+        if: inputs.open_pr == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "ops: add bundle ${{ steps.bundle.outputs.run_id }} (${{ inputs.network }})"
+          title: "ops: add bundle ${{ steps.bundle.outputs.run_id }} (${{ inputs.network }})"
+          branch: "ops/bundle-${{ inputs.network }}-${{ steps.bundle.outputs.run_id }}"
+          add-paths: bundles/${{ inputs.network }}/${{ steps.bundle.outputs.run_id }}

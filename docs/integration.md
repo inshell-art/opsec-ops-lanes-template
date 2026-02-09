@@ -4,6 +4,11 @@ This template is designed to be *imported* into one or more business repos witho
 
 See also: `codex/BUSINESS_REPO_ADOPTION.md` for a short adoption checklist.
 
+## Scaffold example
+
+For a minimal, copy‑ready CI/CD scaffold (workflow + ops scripts + Makefile), see:
+`examples/scaffold/`.
+
 ## Recommended structure
 
 ```
