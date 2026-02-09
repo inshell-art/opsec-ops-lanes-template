@@ -8,6 +8,7 @@ This repo contains:
 - `policy/*.example.json` — example lane policies (RPC allowlist, signer allowlists, fee thresholds, required checks).
 - `schemas/*` — starter JSON schemas for intent/check/approval artifacts.
 - `examples/*` — toy examples (no real addresses, no secrets).
+- `examples/scaffold/*` — downstream repo scaffold for CI rehearsal + ops layout.
 - `codex/BOOTSTRAP.md` — maintainer steps to create and publish the template repo.
 - `codex/BUSINESS_REPO_ADOPTION.md` — quick checklist for adopting this template inside a business repo.
 

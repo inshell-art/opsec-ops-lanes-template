@@ -1,0 +1,12 @@
+{
+  "network": "mainnet",
+  "labels": {
+    "MAINNET_GOV_SW_A": "0x0aaa...1111",
+    "MAINNET_GOV_HW_B": "0x0bbb...2222",
+    "MAINNET_TREASURY_SW_A": "0x0ccc...3333",
+    "MAINNET_TREASURY_HW_B": "0x0ddd...4444",
+    "MAINNET_GOV_MSIG": "0x0eee...5555",
+    "MAINNET_TREASURY_MSIG": "0x0fff...6666"
+  },
+  "notes": "Example only. Replace with real addresses in your private instance."
+}

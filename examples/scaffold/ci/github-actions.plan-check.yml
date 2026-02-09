@@ -1,0 +1,19 @@
+name: Ops Lanes Rehearsal (Plan and Check)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  plan_check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Plan (lane1)
+        run: |
+          ./ops/tools/plan.sh
+      - name: Check (lane1)
+        run: |
+          ./ops/tools/check.sh
