@@ -1,9 +1,7 @@
-# Policy (instance)
+# Policy files
 
-Copy the template examples from `opsec-ops-lanes-template/policy/*.example.json` into this folder
-and edit them for your project. Do not include secrets.
+Copy example policies from the template repo and edit the copies:
+- `policy/sepolia.policy.example.json` -> `ops/policy/sepolia.policy.json`
+- `policy/mainnet.policy.example.json` -> `ops/policy/mainnet.policy.json`
 
-Example:
-```
-cp opsec-ops-lanes-template/policy/sepolia.policy.example.json ops/policy/sepolia.policy.json
-```
+Keep secrets out of git. Only reference local keystore paths via env vars.

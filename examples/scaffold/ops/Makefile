@@ -5,19 +5,28 @@ NETWORK ?=
 RUN_ID ?=
 LANE ?= lane1
 
-.PHONY: bundle verify approve apply subtree-update
+.PHONY: plan check approve apply bundle verify-bundle approve-bundle apply-bundle
+
+plan:
+	$(ROOT)/ops/tools/plan.sh
+
+check:
+	$(ROOT)/ops/tools/check.sh
+
+approve:
+	$(ROOT)/ops/tools/approve.sh
+
+apply:
+	$(ROOT)/ops/tools/apply.sh
 
 bundle:
 	NETWORK=$(NETWORK) LANE=$(LANE) RUN_ID=$(RUN_ID) $(ROOT)/ops/tools/bundle.sh
 
-verify:
+verify-bundle:
 	NETWORK=$(NETWORK) RUN_ID=$(RUN_ID) $(ROOT)/ops/tools/verify_bundle.sh
 
-approve:
+approve-bundle:
 	NETWORK=$(NETWORK) RUN_ID=$(RUN_ID) $(ROOT)/ops/tools/approve_bundle.sh
 
-apply:
+apply-bundle:
 	NETWORK=$(NETWORK) RUN_ID=$(RUN_ID) $(ROOT)/ops/tools/apply_bundle.sh
-
-subtree-update:
-	$(ROOT)/ops/tools/update_ops_template.sh

@@ -6,8 +6,8 @@ See also: `codex/BUSINESS_REPO_ADOPTION.md` for a short adoption checklist.
 
 ## Scaffold example
 
-For a minimal, copy‑ready CI/CD scaffold (workflow + ops scripts + Makefile), see:
-`examples/scaffold/`.
+See `examples/scaffold/` for a minimal downstream repo layout and CI rehearsal stub (plan + check only).
+An optional bundle workflow example is included for teams that want deterministic bundles.
 
 ## Recommended structure
 

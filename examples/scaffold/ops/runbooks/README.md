@@ -1,4 +1,12 @@
-# Runbooks
+# Runbooks (templates)
 
-Place lane runbooks here (deploy, handoff, govern, emergency). Each runbook should reference
-`opsec-ops-lanes-template/docs/ops-lanes-agent.md` for lane rules and safety requirements.
+These are minimal runbook templates for downstream repos. Customize them with your project details.
+
+Suggested files:
+- `lane2-deploy.md`
+- `lane3-handoff.md`
+- `lane5-govern.md`
+
+Each runbook should reference:
+- `docs/ops-lanes-agent.md`
+- `docs/opsec-ops-lanes-signer-map.md`

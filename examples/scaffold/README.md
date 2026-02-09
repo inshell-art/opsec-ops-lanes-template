@@ -1,52 +1,32 @@
-# Scaffold example (CI bundle + local apply)
+# Scaffold example (downstream repo)
 
-This is a **minimal scaffold** you can copy into a business repo to implement the Ops‑lanes flow:
+Purpose: provide a minimal, safe layout to integrate this template and run rehearsals (lane0 and lane1) in CI while keeping lane2+ manual.
 
-- Remote CI builds/tests and produces a **bundle**.
-- Local signing machine verifies/approves/applies the bundle.
-- No secrets committed.
+This scaffold is **not runnable by default**. The `plan/check/approve/apply` scripts are stubs that intentionally fail until you implement them for your repo.
 
-> This example assumes a Starknet toolchain (Scarb + Foundry + starkli). Adjust build/test
-> and apply commands for your stack.
+## Layout
+- `ops/` — policy, runbooks, and tooling wrappers
+- `artifacts/` — generated intents, checks, approvals, and snapshots
+- `bundles/` — deterministic bundles (optional; created by bundle tooling)
+- `ci/` — example CI workflow files to copy into `.github/workflows/`
+- `.env.example` — local-only environment variables (no secrets)
 
-## Copy into your repo
+## How to use
+1. Copy this scaffold into your downstream repo root, or copy the pieces you want.
+2. Replace stubs in `ops/tools/plan.sh`, `check.sh`, `approve.sh`, `apply.sh` with your real commands.
+3. Copy example policies from the template into `ops/policy/` and edit the copies.
+4. Keep secrets out of git.
 
-From inside your business repo:
+## Optional: deterministic bundle tooling
+This scaffold also includes `bundle.sh`, `verify_bundle.sh`, `approve_bundle.sh`, and `apply_bundle.sh` as **reference implementations** for deterministic bundles.
+Review and adapt these scripts before use.
 
-```
-cp -R opsec-ops-lanes-template/examples/scaffold/. .
-```
+## CI and rehearsal guidance
+- CI should run plan and check only (lane0 and lane1).
+- Lane2+ apply happens on a signing OS with keystore mode only.
+- HOT wallets are not ops-lane signers.
 
-## Configure policy
-
-Copy and edit the policy examples (no secrets):
-
-```
-cp opsec-ops-lanes-template/policy/sepolia.policy.example.json ops/policy/sepolia.policy.json
-cp opsec-ops-lanes-template/policy/mainnet.policy.example.json ops/policy/mainnet.policy.json
-```
-
-## Configure runbooks
-
-Write runbooks in `ops/runbooks/` (deploy, handoff, govern, emergency). Reference the rules in:
-- `opsec-ops-lanes-template/docs/ops-lanes-agent.md`
-- `opsec-ops-lanes-template/docs/opsec-ops-lanes-signer-map.md`
-
-## CI bundle flow
-
-The example workflow is at:
-- `.github/workflows/ops_bundle.yml`
-
-It runs build/test, then creates:
-- `bundles/<network>/<run_id>/intent.json`
-- `checks.json`, `run.json`, `policy.json`, `bundle_manifest.json`
-
-## Local CD flow (signing OS)
-
-```
-make -f ops/Makefile verify  NETWORK=<network> RUN_ID=<run_id>
-make -f ops/Makefile approve NETWORK=<network> RUN_ID=<run_id>
-make -f ops/Makefile apply   NETWORK=<network> RUN_ID=<run_id>
-```
-
-> Apply reads only from the bundle (no manual args). Keystore/account files stay outside the repo.
+## References
+- `docs/ops-lanes-agent.md`
+- `docs/opsec-ops-lanes-signer-map.md`
+- `docs/integration.md`
