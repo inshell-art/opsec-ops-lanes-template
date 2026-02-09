@@ -8,6 +8,7 @@ See also: `codex/BUSINESS_REPO_ADOPTION.md` for a short adoption checklist.
 
 See `examples/scaffold/` for a minimal downstream repo layout and CI rehearsal stub (plan + check only).
 An optional bundle workflow example is included for teams that want deterministic bundles.
+The intent is to turn rehearsals into **boring CI jobs** that require no agent decisions.
 
 ## Recommended structure
 
