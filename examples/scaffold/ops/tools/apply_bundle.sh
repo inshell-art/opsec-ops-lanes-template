@@ -120,13 +120,12 @@ if [[ "$NETWORK_FROM_RUN" == "mainnet" && "$REQUIRES_SEPOLIA" == "true" ]]; then
 fi
 
 TXS_PATH="$BUNDLE_DIR/txs.json"
-POST_PATH="$BUNDLE_DIR/postconditions.json"
 SNAP_DIR="$BUNDLE_DIR/snapshots"
 mkdir -p "$SNAP_DIR"
 
 APPLIED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-export APPLIED_AT TXS_PATH POST_PATH SNAP_DIR
+export APPLIED_AT TXS_PATH SNAP_DIR
 python3 - <<'PY'
 import json
 import os
@@ -143,16 +142,10 @@ applied_at = os.environ["APPLIED_AT"]
     "notes": "Scaffold stub. Replace with real tx hashes."
 }, indent=2, sort_keys=True) + "\n")
 
-(Path(os.environ["POST_PATH"])).write_text(json.dumps({
-    "applied_at": applied_at,
-    "pass": True,
-    "notes": "Scaffold stub. Replace with real postconditions."
-}, indent=2, sort_keys=True) + "\n")
-
 (Path(os.environ["SNAP_DIR"]) / "post_state.json").write_text(json.dumps({
     "applied_at": applied_at,
     "notes": "Scaffold stub. Replace with real snapshots."
 }, indent=2, sort_keys=True) + "\n")
 PY
 
-echo "Apply stub complete. Wrote txs.json, postconditions.json, snapshots/ in $BUNDLE_DIR"
+echo "Apply stub complete. Wrote txs.json and snapshots/ in $BUNDLE_DIR"

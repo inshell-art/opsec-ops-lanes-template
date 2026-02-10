@@ -43,6 +43,10 @@ This is a minimal “stupid steps” reference for the deterministic pipeline.
     - no manual calldata/addresses at apply time
     - no LLM calls during apply
 
+5. Postconditions:
+   - Run `ops/tools/postconditions.sh` to record on-chain verification.
+   - Set `POSTCONDITIONS_STATUS=pass` after verification.
+
 Note: `requires_sepolia_rehearsal_proof` defaults to true for mainnet lanes in the template examples.
 Downstreams may explicitly set it to false per lane if they choose to relax the gate.
 5. Write `txs.json`, `snapshots/*`, `postconditions.json`.

@@ -20,6 +20,7 @@ This scaffold is not a runnable system. The scripts in `ops/tools/` are stubs th
 ## CI and rehearsal guidance
 - CI builds **bundles** (run/intent/checks + manifest) and uploads artifacts.
 - Apply happens only on a Signing OS with keystore mode.
+- After apply, run postconditions to record chain verification.
 - No LLM calls are allowed at apply time.
 - HOT wallets are not ops-lane signers.
 

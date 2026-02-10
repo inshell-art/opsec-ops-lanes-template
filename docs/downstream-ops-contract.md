@@ -36,7 +36,7 @@ bundles/
 - Verify manifest hashes + policy compatibility
 - Human approval recorded **before apply**
 - Apply with keystore + Ledger only
-- Produce post-apply evidence (`txs.json`, `snapshots/*`, `postconditions.json`)
+- Produce post-apply evidence (`txs.json`, `snapshots/*`), then run postconditions to generate `postconditions.json`
 
 ## No manual args at apply time
 Apply **must not** accept manual calldata, addresses, or tx hashes. It must read from the bundle artifacts.
