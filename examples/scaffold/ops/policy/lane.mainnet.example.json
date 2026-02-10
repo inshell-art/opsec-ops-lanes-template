@@ -6,6 +6,16 @@
     "https://starknet-mainnet.public.blastapi.io"
   ],
   "lanes": {
+    "observe": {
+      "writes": false,
+      "required_checks": ["chain_id", "rpc_allowlist"],
+      "requires_sepolia_rehearsal_proof": false
+    },
+    "plan": {
+      "writes": false,
+      "required_checks": ["chain_id", "rpc_allowlist"],
+      "requires_sepolia_rehearsal_proof": false
+    },
     "deploy": {
       "writes": true,
       "allowed_signers": ["MAINNET_DEPLOY_SW_A"],

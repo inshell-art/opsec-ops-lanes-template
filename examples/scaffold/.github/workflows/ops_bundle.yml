@@ -15,8 +15,10 @@ on:
         description: "Lane"
         type: choice
         required: true
-        default: deploy
+        default: plan
         options:
+          - observe
+          - plan
           - deploy
           - handoff
           - govern

@@ -25,9 +25,9 @@ business-repo/
       sepolia.policy.json       # your real policy (no secrets)
       mainnet.policy.json
     runbooks/
-      lane2-deploy.md
-      lane3-handoff.md
-      lane5-govern.md
+      deploy.md
+      handoff.md
+      govern.md
   artifacts/
     sepolia/current/            # generated artifacts (safe to commit if redacted)
     sepolia/runs/<run_id>/

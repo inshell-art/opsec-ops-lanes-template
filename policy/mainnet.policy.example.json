@@ -28,8 +28,15 @@
       "type": "ledger"
     }
   },
+  "lane_aliases": {
+    "lane0_observe": "observe",
+    "lane1_plan": "plan",
+    "lane2_deploy": "deploy",
+    "lane3_handoff_lockdown": "handoff",
+    "lane5_govern": "govern"
+  },
   "lanes": {
-    "lane0_observe": {
+    "observe": {
       "writes": false,
       "allowed_ops": [
         "read",
@@ -38,7 +45,7 @@
         "simulate"
       ]
     },
-    "lane1_plan": {
+    "plan": {
       "writes": false,
       "allowed_ops": [
         "build",
@@ -48,7 +55,7 @@
         "simulate"
       ]
     },
-    "lane2_deploy": {
+    "deploy": {
       "writes": true,
       "allowed_signers": [
         "MAINNET_DEPLOY_SW_A"
@@ -72,7 +79,7 @@
         "require_sepolia_rehearsal_proof": true
       }
     },
-    "lane3_handoff_lockdown": {
+    "handoff": {
       "writes": true,
       "allowed_signers": [
         "MAINNET_DEPLOY_SW_A",
@@ -101,7 +108,7 @@
         "require_sepolia_rehearsal_proof": true
       }
     },
-    "lane5_govern": {
+    "govern": {
       "writes": true,
       "allowed_signers": [
         "MAINNET_GOV_SW_A",
@@ -141,7 +148,85 @@
             "MAINNET_TREASURY_HW_B"
           ]
         }
+      }
+    },
+    "treasury": {
+      "writes": true,
+      "allowed_signers": [
+        "MAINNET_TREASURY_SW_A",
+        "MAINNET_TREASURY_HW_B"
+      ],
+      "allowed_ops": [
+        "multisig_submit",
+        "multisig_confirm",
+        "multisig_execute"
+      ],
+      "required_checks": [
+        "chain_id",
+        "rpc_allowlist",
+        "signer_allowlist",
+        "target_identity",
+        "preconditions",
+        "simulate",
+        "postconditions"
+      ],
+      "gates": {
+        "require_sepolia_rehearsal_proof": true
       },
+      "multisig_rules": {
+        "treasury": {
+          "quorum": 2,
+          "signers": [
+            "MAINNET_TREASURY_SW_A",
+            "MAINNET_TREASURY_HW_B"
+          ]
+        }
+      }
+    },
+    "operate": {
+      "writes": true,
+      "allowed_signers": [
+        "MAINNET_GOV_SW_A",
+        "MAINNET_GOV_HW_B"
+      ],
+      "allowed_ops": [
+        "multisig_submit",
+        "multisig_confirm",
+        "multisig_execute"
+      ],
+      "required_checks": [
+        "chain_id",
+        "rpc_allowlist",
+        "signer_allowlist",
+        "target_identity",
+        "preconditions",
+        "postconditions"
+      ],
+      "gates": {
+        "require_sepolia_rehearsal_proof": true
+      }
+    },
+    "emergency": {
+      "writes": true,
+      "allowed_signers": [
+        "MAINNET_GOV_SW_A",
+        "MAINNET_GOV_HW_B"
+      ],
+      "allowed_ops": [
+        "pause",
+        "freeze",
+        "multisig_submit",
+        "multisig_confirm",
+        "multisig_execute"
+      ],
+      "required_checks": [
+        "chain_id",
+        "rpc_allowlist",
+        "signer_allowlist",
+        "target_identity",
+        "preconditions",
+        "postconditions"
+      ],
       "gates": {
         "require_sepolia_rehearsal_proof": true
       }

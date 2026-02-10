@@ -1,9 +1,9 @@
-# Lane 2 deploy runbook (template)
+# Deploy runbook (template)
 
-Purpose: deploy contracts and capture addresses using lane2 rules.
+Purpose: deploy contracts and capture addresses using the `deploy` lane rules.
 
 Prereqs:
-- Lane2 policy is configured for this network.
+- Deploy lane policy is configured for this network.
 - Deployer keystore is available in signing context.
 
 Steps:
