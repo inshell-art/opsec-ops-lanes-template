@@ -1,10 +1,10 @@
-# Lane 5 governance runbook (template)
+# Governance runbook (template)
 
 Purpose: execute governance actions via multisig.
 
 Prereqs:
 - Governance and treasury multisigs are configured.
-- Lane5 policy is configured for this network.
+- Govern lane policy is configured for this network.
 
 Steps:
 1. Run plan to generate governance intents.

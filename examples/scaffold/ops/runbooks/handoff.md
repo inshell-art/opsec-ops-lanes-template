@@ -1,10 +1,10 @@
-# Lane 3 handoff and lockdown runbook (template)
+# Handoff and lockdown runbook (template)
 
 Purpose: transfer ownership and revoke deployer privileges.
 
 Prereqs:
 - Governance multisig is deployed and verified.
-- Lane3 policy is configured for this network.
+- Handoff lane policy is configured for this network.
 
 Steps:
 1. Run plan to generate handoff intents.
