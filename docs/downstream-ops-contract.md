@@ -58,3 +58,7 @@ If policy requires a rehearsal proof:
   - manifest hash match
 
 At minimum, proof means a successful Sepolia run bundle archived and referenced by run id.
+
+**Override (explicit only):** downstream repos may set
+`requires_sepolia_rehearsal_proof: false` (or `gates.require_sepolia_rehearsal_proof: false`)
+per lane, but this should be a conscious, documented exception.

@@ -42,6 +42,9 @@ This is a minimal “stupid steps” reference for the deterministic pipeline.
     - refuses if policy requires Sepolia proof and it’s missing
     - no manual calldata/addresses at apply time
     - no LLM calls during apply
+
+Note: `requires_sepolia_rehearsal_proof` defaults to true for mainnet lanes in the template examples.
+Downstreams may explicitly set it to false per lane if they choose to relax the gate.
 5. Write `txs.json`, `snapshots/*`, `postconditions.json`.
 
 ## CI hardening defaults

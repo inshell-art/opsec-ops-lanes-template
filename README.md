@@ -38,6 +38,7 @@ This repo **must stay public-safe**:
 - Remote CI may build/check bundles, but **may not sign**.
 - **No LLM calls inside apply**; only pinned scripts run.
 - If policy requires Sepolia rehearsal proof, Mainnet apply **refuses** without it.
+  - Override only by explicitly disabling the policy gate per lane.
 
 See `docs/downstream-ops-contract.md`.
 
