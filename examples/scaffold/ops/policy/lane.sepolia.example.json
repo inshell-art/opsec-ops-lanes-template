@@ -1,0 +1,47 @@
+{
+  "network": "sepolia",
+  "rpc_allowlist": [
+    "https://starknet-sepolia.g.alchemy.com/v2/<API_KEY>",
+    "https://starknet-sepolia.infura.io/v3/<API_KEY>",
+    "https://starknet-sepolia.public.blastapi.io"
+  ],
+  "lanes": {
+    "deploy": {
+      "writes": true,
+      "allowed_signers": ["SEPOLIA_DEPLOY_SW_A"],
+      "required_checks": ["chain_id", "rpc_allowlist", "signer_allowlist", "class_hash"],
+      "fee_policy": {"max_fee_native": "<SET_ME>"},
+      "requires_sepolia_rehearsal_proof": false
+    },
+    "handoff": {
+      "writes": true,
+      "allowed_signers": ["SEPOLIA_DEPLOY_SW_A", "SEPOLIA_GOV_SW_A", "SEPOLIA_GOV_HW_B"],
+      "required_checks": ["chain_id", "rpc_allowlist", "signer_allowlist", "target_identity"],
+      "requires_sepolia_rehearsal_proof": false
+    },
+    "govern": {
+      "writes": true,
+      "allowed_signers": ["SEPOLIA_GOV_SW_A", "SEPOLIA_GOV_HW_B", "SEPOLIA_TREASURY_SW_A", "SEPOLIA_TREASURY_HW_B"],
+      "required_checks": ["chain_id", "rpc_allowlist", "signer_allowlist", "simulate"],
+      "requires_sepolia_rehearsal_proof": false
+    },
+    "treasury": {
+      "writes": true,
+      "allowed_signers": ["SEPOLIA_TREASURY_SW_A", "SEPOLIA_TREASURY_HW_B"],
+      "required_checks": ["chain_id", "rpc_allowlist", "signer_allowlist", "simulate"],
+      "requires_sepolia_rehearsal_proof": false
+    },
+    "operate": {
+      "writes": true,
+      "allowed_signers": ["SEPOLIA_GOV_SW_A"],
+      "required_checks": ["chain_id", "rpc_allowlist", "signer_allowlist"],
+      "requires_sepolia_rehearsal_proof": false
+    },
+    "emergency": {
+      "writes": true,
+      "allowed_signers": ["SEPOLIA_GOV_SW_A", "SEPOLIA_GOV_HW_B"],
+      "required_checks": ["chain_id", "rpc_allowlist", "signer_allowlist"],
+      "requires_sepolia_rehearsal_proof": false
+    }
+  }
+}

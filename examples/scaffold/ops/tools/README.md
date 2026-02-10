@@ -3,10 +3,10 @@
 These scripts are placeholders. Replace them with your repo's real commands.
 
 Expected behavior by script:
-- `plan.sh` creates intents for lane1.
-- `check.sh` runs required checks and writes checks artifacts.
-- `approve.sh` records human approval tied to the intent hash.
-- `apply.sh` executes the approved intent in signing context only.
+- `bundle.sh` creates `run.json`, `intent.json`, `checks.json`, and `bundle_manifest.json`.
+- `verify_bundle.sh` verifies manifest hashes, git commit, and policy compatibility.
+- `approve_bundle.sh` records human approval tied to the bundle hash.
+- `apply_bundle.sh` executes the approved bundle in signing context only.
 
 All write operations must use keystore mode only. Do not use accounts-file signing.
 

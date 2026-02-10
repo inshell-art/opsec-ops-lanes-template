@@ -107,6 +107,20 @@ On the signing OS (OS2/OS3), before any signature:
 2) Generate and verify a **bundle manifest**:
 
 - `bundle_manifest.json` contains SHA256 hashes of immutable files.
+- Minimum immutable set (at least): `run.json`, `intent.json`, `checks.json`.
+
+**Manifest format (example):**
+```json
+{
+  "manifest_version": 1,
+  "bundle_hash": "<sha256>",
+  "immutable_files": [
+    { "path": "run.json", "sha256": "<sha256>" },
+    { "path": "intent.json", "sha256": "<sha256>" },
+    { "path": "checks.json", "sha256": "<sha256>" }
+  ]
+}
+```
 
 3) Freeze immutables:
 - After approval, these files must never change:
@@ -208,4 +222,3 @@ Example set (per network):
   - signer matches policy,
   - target identity matches expected,
   - approved intent hash matches the operation being confirmed.
-

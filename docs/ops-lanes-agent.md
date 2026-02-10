@@ -215,6 +215,10 @@ Each lane is defined by: **Signer(s), Allowed ops, Required checks, Approval rul
 
 ## 6) Remote CI + Local CD (recommended shape)
 
+### Deterministic pipeline (no LLM at apply)
+- Rehearsal output is a **pinned pipeline** (CI + local scripts), not an LLM workflow.
+- **Agent = deterministic scripts**; LLMs are for authoring tools/docs only.
+
 ### Remote CI (no secrets)
 - Build/test
 - Produce release bundle (compiled artifacts + hashes + policies)
@@ -243,4 +247,3 @@ Refuse if any of these occur:
 - intent/bundle hash mismatch across files
 - AIRLOCK integrity check fails (manifest mismatch / immutable changed)
 - postconditions fail after tx
-

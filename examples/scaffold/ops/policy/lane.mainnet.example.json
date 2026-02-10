@@ -1,0 +1,47 @@
+{
+  "network": "mainnet",
+  "rpc_allowlist": [
+    "https://starknet-mainnet.g.alchemy.com/v2/<API_KEY>",
+    "https://starknet-mainnet.infura.io/v3/<API_KEY>",
+    "https://starknet-mainnet.public.blastapi.io"
+  ],
+  "lanes": {
+    "deploy": {
+      "writes": true,
+      "allowed_signers": ["MAINNET_DEPLOY_SW_A"],
+      "required_checks": ["chain_id", "rpc_allowlist", "signer_allowlist", "class_hash"],
+      "fee_policy": {"max_fee_native": "<SET_ME>"},
+      "requires_sepolia_rehearsal_proof": true
+    },
+    "handoff": {
+      "writes": true,
+      "allowed_signers": ["MAINNET_GOV_SW_A", "MAINNET_GOV_HW_B"],
+      "required_checks": ["chain_id", "rpc_allowlist", "signer_allowlist", "target_identity"],
+      "requires_sepolia_rehearsal_proof": true
+    },
+    "govern": {
+      "writes": true,
+      "allowed_signers": ["MAINNET_GOV_SW_A", "MAINNET_GOV_HW_B", "MAINNET_TREASURY_SW_A", "MAINNET_TREASURY_HW_B"],
+      "required_checks": ["chain_id", "rpc_allowlist", "signer_allowlist", "simulate"],
+      "requires_sepolia_rehearsal_proof": true
+    },
+    "treasury": {
+      "writes": true,
+      "allowed_signers": ["MAINNET_TREASURY_SW_A", "MAINNET_TREASURY_HW_B"],
+      "required_checks": ["chain_id", "rpc_allowlist", "signer_allowlist", "simulate"],
+      "requires_sepolia_rehearsal_proof": true
+    },
+    "operate": {
+      "writes": true,
+      "allowed_signers": ["MAINNET_GOV_SW_A"],
+      "required_checks": ["chain_id", "rpc_allowlist", "signer_allowlist"],
+      "requires_sepolia_rehearsal_proof": false
+    },
+    "emergency": {
+      "writes": true,
+      "allowed_signers": ["MAINNET_GOV_SW_A", "MAINNET_GOV_HW_B"],
+      "required_checks": ["chain_id", "rpc_allowlist", "signer_allowlist"],
+      "requires_sepolia_rehearsal_proof": true
+    }
+  }
+}

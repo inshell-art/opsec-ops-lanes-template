@@ -1,32 +1,30 @@
 # Scaffold example (downstream repo)
 
-Purpose: provide a minimal, safe layout to integrate this template and run rehearsals (lane0 and lane1) in CI while keeping lane2+ manual.
+Purpose: provide a minimal, safe layout to integrate this template and run **bundle rehearsals** in CI while keeping **apply** on a Signing OS.
 
-This scaffold is **not runnable by default**. The `plan/check/approve/apply` scripts are stubs that intentionally fail until you implement them for your repo.
+This scaffold is not a runnable system. The scripts in `ops/tools/` are stubs that you must replace for your repo.
 
 ## Layout
 - `ops/` — policy, runbooks, and tooling wrappers
 - `artifacts/` — generated intents, checks, approvals, and snapshots
-- `bundles/` — deterministic bundles (optional; created by bundle tooling)
-- `ci/` — example CI workflow files to copy into `.github/workflows/`
+- `bundles/` — immutable bundles produced by CI and consumed by Signing OS
+- `.github/workflows/ops_bundle.yml` — example CI workflow (copy into downstream repo)
 - `.env.example` — local-only environment variables (no secrets)
 
 ## How to use
 1. Copy this scaffold into your downstream repo root, or copy the pieces you want.
-2. Replace stubs in `ops/tools/plan.sh`, `check.sh`, `approve.sh`, `apply.sh` with your real commands.
-3. Copy example policies from the template into `ops/policy/` and edit the copies.
+2. Implement `ops/tools/bundle.sh`, `verify_bundle.sh`, `approve_bundle.sh`, and `apply_bundle.sh` for your toolchain.
+3. Copy and edit the example policies in `ops/policy/`.
 4. Keep secrets out of git.
 
-## Optional: deterministic bundle tooling
-This scaffold also includes `bundle.sh`, `verify_bundle.sh`, `approve_bundle.sh`, and `apply_bundle.sh` as **reference implementations** for deterministic bundles.
-Review and adapt these scripts before use.
-
 ## CI and rehearsal guidance
-- CI should run plan and check only (lane0 and lane1).
-- Lane2+ apply happens on a signing OS with keystore mode only.
+- CI builds **bundles** (run/intent/checks + manifest) and uploads artifacts.
+- Apply happens only on a Signing OS with keystore mode.
+- No LLM calls are allowed at apply time.
 - HOT wallets are not ops-lane signers.
 
 ## References
 - `docs/ops-lanes-agent.md`
 - `docs/opsec-ops-lanes-signer-map.md`
-- `docs/integration.md`
+- `docs/downstream-ops-contract.md`
+- `docs/pipeline-reference.md`

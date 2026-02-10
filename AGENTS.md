@@ -21,6 +21,7 @@ This file is for agent operators working in downstream repos that consume this t
 - Do not edit files inside the subtree path (`opsec-ops-lanes-template/`) directly.
 - Do not commit secrets, keystores, seed phrases, or RPC credentials.
 - Do not introduce accounts‑file signing mode. Keystore mode only.
+- Do not use LLMs during apply. Only pinned scripts may execute operations.
 
 ## How to update the template in a downstream repo
 Use one of these methods:

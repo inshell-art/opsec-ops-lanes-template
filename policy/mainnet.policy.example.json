@@ -123,6 +123,9 @@
         "simulate",
         "postconditions"
       ],
+      "gates": {
+        "require_sepolia_rehearsal_proof": true
+      },
       "multisig_rules": {
         "gov": {
           "quorum": 2,
