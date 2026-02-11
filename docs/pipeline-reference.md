@@ -9,9 +9,6 @@ This is a minimal “stupid steps” reference for the deterministic pipeline.
 - Optional: `BUNDLE_PATH` (local path to a bundle directory)
 - Optional (mainnet only): `SEPOLIA_PROOF_RUN_ID` (run id of the rehearsal bundle)
 
-Canonical lane ids are semantic names. Older policies may still use legacy aliases
-like `lane0_observe`, `lane1_plan`, and `lane2_deploy`.
-
 ## Outputs
 - Bundle directory: `bundles/<network>/<run_id>/`
 - Post-apply evidence:

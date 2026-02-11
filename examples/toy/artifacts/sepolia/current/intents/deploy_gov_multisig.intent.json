@@ -1,6 +1,6 @@
 {
   "network": "sepolia",
-  "lane": "lane2_deploy",
+  "lane": "deploy",
   "signer_alias": "SEPOLIA_DEPLOY_SW_A",
   "tx": {
     "to": "0x0MULTISIG_FACTORY_OR_CLASS",

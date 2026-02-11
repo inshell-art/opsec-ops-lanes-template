@@ -28,13 +28,6 @@
       "type": "ledger"
     }
   },
-  "lane_aliases": {
-    "lane0_observe": "observe",
-    "lane1_plan": "plan",
-    "lane2_deploy": "deploy",
-    "lane3_handoff_lockdown": "handoff",
-    "lane5_govern": "govern"
-  },
   "lanes": {
     "observe": {
       "writes": false,
