@@ -1,6 +1,7 @@
 # Pipeline Reference (CI → Local CD)
 
 This is a minimal “stupid steps” reference for the deterministic pipeline.
+For trust tiers and claim-verification format, see `docs/agent-trust-model.md`.
 
 ## Inputs
 - `NETWORK` (`sepolia` | `mainnet`)

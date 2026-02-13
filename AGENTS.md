@@ -49,6 +49,7 @@ ops/tools/update_ops_template.sh
 - Ensure the downstream repo has a local policy copy in `ops/policy/`.
 - Check that no secrets are tracked in git.
 - Verify that docs used by operators match the template versions.
+- Ensure operator-facing guidance includes `docs/agent-trust-model.md`.
 
 ## Operator safety reminders
 - Keep keystore and `account.json` paths outside the repo and reference via local env vars.

@@ -144,6 +144,7 @@ Your job is to approve **meaning**, pick the correct lane/network, and physicall
 - Pin the execution version:
   - record git commit hash/tag in `run.json`
   - apply refuses if the repo is dirty or the commit differs
+- Use `docs/agent-trust-model.md` for trust tiers and Evidence Pack response shape.
 
 ### Disallowed (especially on Mainnet)
 - No LLM calls inside `apply` (no “agent decides what to do” at runtime).

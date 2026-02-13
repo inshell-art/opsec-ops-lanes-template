@@ -43,6 +43,7 @@ Apply **must not** accept manual calldata, addresses, or tx hashes. It must read
 
 ## No LLM in apply
 LLMs may be used to author scripts and docs, but **must never** be invoked at runtime for apply.
+Agent claims should follow the Evidence Pack format in `docs/agent-trust-model.md`.
 
 ## AIRLOCK integrity rules
 - AIRLOCK is **untrusted input**.

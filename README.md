@@ -14,6 +14,7 @@ This repo contains:
 - `codex/BUSINESS_REPO_ADOPTION.md` — quick checklist for adopting this template inside a business repo.
 - `docs/downstream-ops-contract.md` — required rules for downstream repos (CI/CD + signing).
 - `docs/pipeline-reference.md` — step-by-step pipeline reference (bundle → verify → approve → apply).
+- `docs/agent-trust-model.md` — trust tiers + evidence-pack requirements for agent claims.
 - `schemas/bundle_manifest.schema.json` — schema for bundle manifests (AIRLOCK integrity).
 
 ## What this template is (and is not)
@@ -41,6 +42,7 @@ This repo **must stay public-safe**:
   - Override only by explicitly disabling the policy gate per lane.
 
 See `docs/downstream-ops-contract.md`.
+For agent claim verification discipline, see `docs/agent-trust-model.md`.
 
 ## How to use this template in a business repo
 
