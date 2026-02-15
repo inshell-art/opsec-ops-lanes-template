@@ -6,6 +6,29 @@ This file is for agent operators working in downstream repos that consume this t
 - The template repo is the source of truth for ops‑lanes docs, policies, schemas, and examples.
 - Downstream repos should **consume** it, not edit it in place.
 
+## Ops Agent Response Contract (MUST)
+
+Many agent runners auto-load only the downstream repo's root `AGENTS.md`. Since this template is often vendored under a subtree path, downstream repos must copy/paste the snippet below into their repo root `AGENTS.md` so agents actually load it:
+
+- `docs/snippets/root-AGENTS-ops-agent-contract.md`
+
+### Trigger rule (unambiguous)
+If the user:
+- asks to run any ops tool/step (`ops/tools/*.sh`, `make -C ops ...`, or workflow steps like `bundle`, `verify`, `approve`, `apply`, `postconditions`), or
+- asks what happened / what a step does / what was run / to show output for any ops step,
+then the agent response MUST be in Evidence Pack format.
+
+### Evidence Pack format (mandatory fields)
+1. Claim + trust tier label (`PROPOSED` | `VERIFIED` | `PINNED` | `ON_CHAIN`)
+2. Source-of-truth scripts + repo pin (`git rev-parse HEAD` or tag)
+3. Exact reproduce command(s)
+4. Observed output (and/or expected output if not run) + exit code
+5. Files read/produced (paths)
+6. Stop conditions (what would make it fail/refuse)
+7. What the evidence does not prove (scope limits)
+
+Rule: never present `PROPOSED` as `VERIFIED`.
+
 ## Where it lives in downstream repos
 - Subtree (current default): `opsec-ops-lanes-template/`
 - Submodule (optional): `ops-template/` or another stable path

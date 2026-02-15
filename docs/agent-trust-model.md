@@ -8,6 +8,13 @@ Core principle:
 - Deterministic scripts verify reality.
 - Runtime apply uses pinned scripts only.
 
+## Trigger rules (MUST)
+
+If the user:
+- asks to run any ops tool/step (`ops/tools/*.sh`, `make -C ops ...`, or workflow steps like `bundle`, `verify`, `approve`, `apply`, `postconditions`), or
+- asks what happened / what a step does / what was run / to show output for any ops step,
+then the agent response MUST be in Evidence Pack format.
+
 ## 1) Trust the verifiers, not the agent
 
 Treat agent output as untrusted suggestions until reproducible by deterministic checks.
@@ -32,7 +39,7 @@ For any instruction or claim like "X is proven", provide:
 1. Claim (with tier)
 2. Source of truth script(s) and commit (`git rev-parse HEAD`)
 3. Exact reproduce command(s)
-4. Expected output
+4. Observed output (and/or expected output if not run) + exit code
 5. Files read/produced
 6. Stop conditions
 7. What the evidence does not prove
@@ -87,26 +94,43 @@ Before signing:
 
 Never store secrets in AIRLOCK.
 
-## 8) Example Evidence Pack
+## 8) Example Evidence Packs
 
-Claim (`VERIFIED`):
-Bundle consistency was verified by `ops/tools/verify_bundle.sh` at commit `<GIT_SHA>`.
+### A) Step 4: `verify_bundle.sh` (integrity proof)
 
-Reproduce:
+1. Claim (`VERIFIED`):
+Bundle integrity and internal consistency for `bundles/sepolia/<RUN_ID>` was verified by `ops/tools/verify_bundle.sh`.
 
+2. Source of truth + repo pin:
+- Script: `ops/tools/verify_bundle.sh`
+- Repo pin:
+  - `git rev-parse HEAD` (or a tag like `git describe --tags --always`)
+
+3. Exact reproduce commands:
 ```bash
 git rev-parse HEAD
 NETWORK=sepolia RUN_ID=<RUN_ID> ops/tools/verify_bundle.sh
+echo $?
 ```
 
-Expected output:
+4. Observed output / expected output + exit code:
+- If run: paste the verifier output and the exit code.
+- Expected on success:
+  - output includes `Manifest hashes verified`
+  - output includes `Bundle verified: ...`
+  - exit code `0`
 
-- `Manifest hashes verified`
-- `Bundle verified: ...`
-- exit code `0`
+5. Files read/produced:
+- Reads:
+  - `bundles/sepolia/<RUN_ID>/bundle_manifest.json`
+  - `bundles/sepolia/<RUN_ID>/run.json`
+  - `bundles/sepolia/<RUN_ID>/intent.json`
+  - `bundles/sepolia/<RUN_ID>/checks.json`
+  - `ops/policy/lane.sepolia.json` (or `ops/policy/lane.sepolia.example.json`)
+- Produces:
+  - none (verifier only)
 
-Stop conditions:
-
+6. Stop conditions:
 - missing required files
 - hash mismatch for any immutable file
 - `bundle_hash` mismatch
@@ -114,9 +138,49 @@ Stop conditions:
 - lane missing from policy
 - approval hash mismatch (if approval exists)
 
-Scope limit:
+7. What this does not prove:
+- semantic safety/correctness of the intent
+- correctness of target identity unless checks prove it
 
-This does not prove semantic safety, only bundle integrity and consistency.
+### B) Step 5: record evidence (bundle hash + run summary)
+
+1. Claim (`VERIFIED`):
+Bundle hash and run metadata were recorded for operator review and later audit.
+
+2. Source of truth + repo pin:
+- Files:
+  - `bundles/sepolia/<RUN_ID>/bundle_manifest.json`
+  - `bundles/sepolia/<RUN_ID>/run.json`
+- Repo pin:
+  - `git rev-parse HEAD`
+
+3. Exact reproduce commands:
+```bash
+git rev-parse HEAD
+python3 -c 'import json; print(json.load(open(\"bundles/sepolia/<RUN_ID>/bundle_manifest.json\"))[\"bundle_hash\"])'
+python3 -c 'import json; r=json.load(open(\"bundles/sepolia/<RUN_ID>/run.json\")); print(f\"run_id={r.get('run_id')} network={r.get('network')} lane={r.get('lane')} git_commit={r.get('git_commit')}\")'
+```
+
+4. Observed output / expected output + exit code:
+- Output:
+  - first command prints the `bundle_hash`
+  - second prints `run_id=... network=... lane=... git_commit=...`
+- Exit code: `0` for each command on success
+
+5. Files read/produced:
+- Reads:
+  - `bundles/sepolia/<RUN_ID>/bundle_manifest.json`
+  - `bundles/sepolia/<RUN_ID>/run.json`
+- Produces:
+  - none (unless you explicitly write a log/note file)
+
+6. Stop conditions:
+- missing files
+- JSON parse errors
+
+7. What this does not prove:
+- that the bundle is consistent (use `verify_bundle.sh` for that)
+- that the bundle is safe (semantic approval is separate)
 
 ## 9) Agent refusal rule
 
