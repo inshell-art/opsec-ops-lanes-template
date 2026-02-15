@@ -1,6 +1,6 @@
 # Integration guide
 
-This template is designed to be *imported* into one or more business repos without copying secrets.
+This template is designed to be *imported* into one or more downstream repos without copying secrets.
 
 See also:
 - `codex/BUSINESS_REPO_ADOPTION.md` for a short adoption checklist.
@@ -15,7 +15,7 @@ An optional bundle workflow example is included for teams that want deterministi
 ## Recommended structure
 
 ```
-business-repo/
+downstream-repo/
   ops-template/                 # this repo as a submodule (or subtree)
     docs/
     policy/

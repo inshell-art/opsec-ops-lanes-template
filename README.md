@@ -11,7 +11,7 @@ This repo contains:
 - `examples/*` — toy examples (no real addresses, no secrets).
 - `examples/scaffold/*` — downstream repo scaffold for CI rehearsal + ops layout.
 - `codex/BOOTSTRAP.md` — maintainer steps to create and publish the template repo.
-- `codex/BUSINESS_REPO_ADOPTION.md` — quick checklist for adopting this template inside a business repo.
+- `codex/BUSINESS_REPO_ADOPTION.md` — quick checklist for adopting this template inside a downstream repo.
 - `docs/downstream-ops-contract.md` — required rules for downstream repos (CI/CD + signing).
 - `docs/pipeline-reference.md` — step-by-step pipeline reference (bundle → verify → approve → apply).
 - `docs/agent-trust-model.md` — trust tiers + evidence-pack requirements for agent claims.
@@ -44,9 +44,9 @@ This repo **must stay public-safe**:
 See `docs/downstream-ops-contract.md`.
 For agent claim verification discipline, see `docs/agent-trust-model.md`.
 
-## How to use this template in a business repo
+## How to use this template in a downstream repo
 
-Note: Fork/copy/submodule this repo into your business repo and keep secrets out of git (keystore/account.json, seed phrases, 2FA backups, RPC credentials). Commit only `*.example` templates.
+Note: Fork/copy/submodule this repo into your downstream repo and keep secrets out of git (keystore/account.json, seed phrases, 2FA backups, RPC credentials). Commit only `*.example` templates.
 
 Pick one approach:
 
@@ -54,12 +54,12 @@ Pick one approach:
 Vendor the template into your repo (example: `opsec-ops-lanes-template/`) and pull updates periodically.
 
 ### Option B — Git submodule
-Add this repo to your business repo at a stable path (example: `ops-template/`), then reference docs/policy from there.
+Add this repo to your downstream repo at a stable path (example: `ops-template/`), then reference docs/policy from there.
 
 ### Option C — Copy the docs
 Copy `docs/` and `policy/` and maintain your own fork.
 
-## Suggested private repo layout (business repo)
+## Suggested private repo layout (downstream repo)
 
 Keep “rules” separate from “instance data”:
 
@@ -69,7 +69,7 @@ Keep “rules” separate from “instance data”:
 
 See `docs/integration.md` for a full example, and `examples/scaffold/` for a runnable layout.
 
-For a minimal CI/CD scaffold you can copy into a business repo, see:
+For a minimal CI/CD scaffold you can copy into a downstream repo, see:
 `examples/scaffold/`.
 
 ## License

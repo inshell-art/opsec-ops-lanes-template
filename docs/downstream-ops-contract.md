@@ -1,6 +1,6 @@
 # Downstream Ops Contract
 
-This document defines the **non-negotiable rules** for any business repo that adopts the template.
+This document defines the **non-negotiable rules** for any downstream repo that adopts the template.
 
 ## Required directory conventions
 Downstream repos must follow these (or compatible) paths:

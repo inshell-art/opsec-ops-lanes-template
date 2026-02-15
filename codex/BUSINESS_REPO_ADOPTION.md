@@ -1,6 +1,6 @@
-# Codex guide — adopting the template inside a business repo
+# Codex guide — adopting the template inside a downstream repo
 
-This file is intended for use inside a business repo that wants to adhere to the template rules.
+This file is intended for use inside a downstream repo that wants to adhere to the template rules.
 
 ## Add template as submodule
 ```bash
