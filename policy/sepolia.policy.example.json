@@ -1,20 +1,20 @@
 {
   "network": "sepolia",
-  "chain_id": "SN_SEPOLIA",
+  "chain_id": "11155111",
   "rpc_allowlist": [
-    "https://starknet-sepolia.g.alchemy.com/v2/<API_KEY>",
-    "https://starknet-sepolia.infura.io/v3/<API_KEY>",
-    "https://starknet-sepolia.public.blastapi.io"
+    "https://eth-sepolia.g.alchemy.com/v2/<API_KEY>",
+    "https://sepolia.infura.io/v3/<API_KEY>",
+    "https://ethereum-sepolia-rpc.publicnode.com"
   ],
   "signer_aliases": {
     "SEPOLIA_DEPLOY_SW_A": {
       "type": "keystore",
-      "account_json_env": "SEPOLIA_DEPLOY_ACCOUNT_JSON",
+      "address_env": "SEPOLIA_DEPLOY_ADDRESS",
       "keystore_env": "SEPOLIA_DEPLOY_KEYSTORE_JSON"
     },
     "SEPOLIA_GOV_SW_A": {
       "type": "keystore",
-      "account_json_env": "SEPOLIA_GOV_ACCOUNT_JSON",
+      "address_env": "SEPOLIA_GOV_ADDRESS",
       "keystore_env": "SEPOLIA_GOV_KEYSTORE_JSON"
     },
     "SEPOLIA_GOV_HW_B": {
@@ -22,7 +22,7 @@
     },
     "SEPOLIA_TREASURY_SW_A": {
       "type": "keystore",
-      "account_json_env": "SEPOLIA_TREASURY_ACCOUNT_JSON",
+      "address_env": "SEPOLIA_TREASURY_ADDRESS",
       "keystore_env": "SEPOLIA_TREASURY_KEYSTORE_JSON"
     },
     "SEPOLIA_TREASURY_HW_B": {
@@ -55,18 +55,21 @@
         "SEPOLIA_DEPLOY_SW_A"
       ],
       "allowed_ops": [
-        "declare",
-        "deploy"
+        "deploy_contract",
+        "initialize_contract"
       ],
       "required_checks": [
         "chain_id",
         "rpc_allowlist",
         "signer_allowlist",
-        "class_hash",
+        "bytecode_hash",
+        "proxy_implementation",
         "post_deploy_snapshot"
       ],
       "fee_policy": {
-        "max_fee_native": "<SET_ME>"
+        "max_fee_per_gas_gwei": "<SET_ME>",
+        "max_priority_fee_per_gas_gwei": "<SET_ME>",
+        "enforce_eip1559": true
       }
     },
     "handoff": {
@@ -81,9 +84,9 @@
         "revoke_role",
         "transfer_ownership",
         "accept_ownership",
-        "multisig_submit",
-        "multisig_confirm",
-        "multisig_execute"
+        "safe_propose",
+        "safe_confirm",
+        "safe_execute"
       ],
       "required_checks": [
         "chain_id",
@@ -103,9 +106,9 @@
         "SEPOLIA_TREASURY_HW_B"
       ],
       "allowed_ops": [
-        "multisig_submit",
-        "multisig_confirm",
-        "multisig_execute"
+        "safe_propose",
+        "safe_confirm",
+        "safe_execute"
       ],
       "required_checks": [
         "chain_id",
@@ -116,7 +119,7 @@
         "simulate",
         "postconditions"
       ],
-      "multisig_rules": {
+      "safe_rules": {
         "gov": {
           "quorum": 2,
           "signers": [
@@ -140,9 +143,9 @@
         "SEPOLIA_TREASURY_HW_B"
       ],
       "allowed_ops": [
-        "multisig_submit",
-        "multisig_confirm",
-        "multisig_execute"
+        "safe_propose",
+        "safe_confirm",
+        "safe_execute"
       ],
       "required_checks": [
         "chain_id",
@@ -153,7 +156,7 @@
         "simulate",
         "postconditions"
       ],
-      "multisig_rules": {
+      "safe_rules": {
         "treasury": {
           "quorum": 2,
           "signers": [
@@ -170,9 +173,9 @@
         "SEPOLIA_GOV_HW_B"
       ],
       "allowed_ops": [
-        "multisig_submit",
-        "multisig_confirm",
-        "multisig_execute"
+        "safe_propose",
+        "safe_confirm",
+        "safe_execute"
       ],
       "required_checks": [
         "chain_id",
@@ -192,9 +195,9 @@
       "allowed_ops": [
         "pause",
         "freeze",
-        "multisig_submit",
-        "multisig_confirm",
-        "multisig_execute"
+        "safe_propose",
+        "safe_confirm",
+        "safe_execute"
       ],
       "required_checks": [
         "chain_id",

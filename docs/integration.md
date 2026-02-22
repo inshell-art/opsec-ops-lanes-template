@@ -38,15 +38,15 @@ downstream-repo/
 
 ## Keeping secrets out of the repo
 
-Use *local-only* locations for keystores and account.json:
+Use *local-only* locations for keystores and signer metadata:
 
 Example (operator machine):
 ```
 ~/.opsec/
   sepolia/
-    deploy_sw_a/{account.json,keystore.json}
-    gov_sw_a/{account.json,keystore.json}
-    treasury_sw_a/{account.json,keystore.json}
+    deploy_sw_a/{address.txt,keystore.json}
+    gov_sw_a/{address.txt,keystore.json}
+    treasury_sw_a/{address.txt,keystore.json}
   mainnet/
     ...
 ```
@@ -72,7 +72,7 @@ git commit -am "Update ops-template"
 - `ops-template/policy/sepolia.policy.example.json` → `ops/policy/sepolia.policy.json`
 - `ops-template/policy/mainnet.policy.example.json` → `ops/policy/mainnet.policy.json`
 
-2) Define your signer aliases (addresses) in `artifacts/<net>/current/addresses.json`.
+2) Define your signer aliases (EOA + Safe addresses) in `artifacts/<net>/current/addresses.json`.
 
 3) Keep runbooks in `ops/runbooks/`, but reference the lane rules in:
 - `ops-template/docs/ops-lanes-agent.md`

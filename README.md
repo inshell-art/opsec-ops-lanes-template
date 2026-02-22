@@ -1,13 +1,13 @@
 # opsec-ops-lanes-template
 
-A public, repo-safe template for **deterministic** intent-gated onchain operations under a practical **OPSEC compartment model**.  
+A public, repo-safe template for **deterministic** intent-gated Ethereum operations under a practical **OPSEC compartment model**.
 **LLMs are for authoring tools; production apply is pinned scripts only.**
 
 This repo contains:
 - `docs/ops-lanes-agent.md` — the “Ops Lanes” contract between an agent and a human operator (keystore-mode signing, no accounts-file mode).
 - `docs/opsec-ops-lanes-signer-map.md` — OPSEC compartments + signer aliases + phase split (Sepolia rehearsal → Mainnet).
-- `policy/*.example.json` — example lane policies (RPC allowlist, signer allowlists, fee thresholds, required checks).
-- `schemas/*` — starter JSON schemas for intent/check/approval artifacts.
+- `policy/*.example.json` — example lane policies (RPC allowlist, signer allowlists, EIP-1559 fee thresholds, required checks).
+- `schemas/*` — starter JSON schemas for intent/check/approval artifacts (including EVM + Safe transaction shapes).
 - `examples/*` — toy examples (no real addresses, no secrets).
 - `examples/scaffold/*` — downstream repo scaffold for CI rehearsal + ops layout.
 - `codex/BOOTSTRAP.md` — maintainer steps to create and publish the template repo.
@@ -46,7 +46,7 @@ For agent claim verification discipline, see `docs/agent-trust-model.md`.
 
 ## How to use this template in a downstream repo
 
-Note: Fork/copy/submodule this repo into your downstream repo and keep secrets out of git (keystore/account.json, seed phrases, 2FA backups, RPC credentials). Commit only `*.example` templates.
+Note: Fork/copy/submodule this repo into your downstream repo and keep secrets out of git (keystore files, seed phrases, 2FA backups, RPC credentials). Commit only `*.example` templates.
 
 Pick one approach:
 

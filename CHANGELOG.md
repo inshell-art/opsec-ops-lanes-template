@@ -10,7 +10,7 @@
 - Semantic lane IDs are now the only supported machine-facing IDs:
   - `observe`, `plan`, `deploy`, `handoff`, `govern`, `treasury`, `operate`, `emergency`
 - Updated example intent lane value to semantic form in:
-  - `examples/toy/artifacts/sepolia/current/intents/deploy_gov_multisig.intent.json`
+  - `examples/toy/artifacts/sepolia/current/intents/deploy_gov_safe.intent.json`
 
 ### Migration required for downstream repos
 

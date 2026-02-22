@@ -5,7 +5,7 @@ Goal: create a public-safe template repository named `opsec-ops-lanes-template`.
 ## Constraints (non-negotiable)
 - No secrets in git history: no private keys, keystores, mnemonics, 2FA backups, RPC URLs with embedded credentials.
 - Keystore signing mode is the only supported signing surface in docs.
-- HOT wallet (Braavos) is explicitly *not* an ops-lane signer.
+- HOT wallet (MetaMask/Rabby) is explicitly *not* an ops-lane signer.
 
 ## Repo contents (expected)
 - `README.md`

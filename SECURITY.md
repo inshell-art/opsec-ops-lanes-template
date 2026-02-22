@@ -7,5 +7,5 @@ If you discover a security issue in this template (e.g., guidance that would cau
 If you are using this template in production, treat any suspected leak as an incident:
 - stop signing
 - rotate HOT keys immediately
-- review multisig signer safety
+- review Safe signer safety
 - audit any recent commits for secrets

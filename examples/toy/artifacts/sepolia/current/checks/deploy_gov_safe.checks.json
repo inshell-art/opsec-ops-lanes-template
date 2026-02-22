@@ -6,15 +6,15 @@
       "name": "chain_id",
       "status": "pass",
       "evidence": {
-        "expected": "SN_SEPOLIA",
-        "observed": "SN_SEPOLIA"
+        "expected": "11155111",
+        "observed": "11155111"
       }
     },
     {
       "name": "rpc_allowlist",
       "status": "pass",
       "evidence": {
-        "rpc": "https://starknet-sepolia.g.alchemy.com/v2/<API_KEY>"
+        "rpc": "https://eth-sepolia.g.alchemy.com/v2/<API_KEY>"
       }
     },
     {
@@ -25,11 +25,20 @@
       }
     },
     {
-      "name": "class_hash",
+      "name": "bytecode_hash",
       "status": "pass",
       "evidence": {
-        "expected": "0xCLASS_HASH",
-        "observed": "0xCLASS_HASH"
+        "expected": "0x5f5f9d6c2b7b9b1e85f8f87cd5f16e10f3a7e00a7a6c3f4af4a3c8b889f8dafe",
+        "observed": "0x5f5f9d6c2b7b9b1e85f8f87cd5f16e10f3a7e00a7a6c3f4af4a3c8b889f8dafe"
+      }
+    },
+    {
+      "name": "proxy_implementation",
+      "status": "pass",
+      "evidence": {
+        "slot": "eip1967.implementation",
+        "expected": "0x4444444444444444444444444444444444444444",
+        "observed": "0x4444444444444444444444444444444444444444"
       }
     },
     {

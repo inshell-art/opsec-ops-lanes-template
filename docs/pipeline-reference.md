@@ -22,8 +22,8 @@ For trust tiers and claim-verification format, see `docs/agent-trust-model.md`.
 2. Build/test (read-only).
 3. Generate bundle:
    - `run.json` (includes git SHA)
-   - `intent.json`
-   - `checks.json` (read/sim only)
+   - `intent.json` (EVM call or Safe payload)
+   - `checks.json` (read/sim only; includes bytecode/proxy checks for writes)
    - `bundle_manifest.json` (hashes immutable files)
 4. Upload bundle artifact.
 
@@ -37,20 +37,21 @@ For trust tiers and claim-verification format, see `docs/agent-trust-model.md`.
    - record approval tied to `bundle_hash`
    - typed phrase includes network + lane + hash suffix
 4. Apply bundle (requires `SIGNING_OS=1`):
-    - refuses on dirty repo
-    - refuses on manifest mismatch
-    - refuses if approval missing
-    - refuses if policy requires Sepolia proof and it’s missing
-    - no manual calldata/addresses at apply time
-    - no LLM calls during apply
+   - refuses on dirty repo
+   - refuses on manifest mismatch
+   - refuses if approval missing
+   - refuses if policy requires Sepolia proof and it’s missing
+   - enforces policy fee limits (including EIP-1559 bounds where configured)
+   - no manual calldata/addresses at apply time
+   - no LLM calls during apply
 
 5. Postconditions:
    - Run `ops/tools/postconditions.sh` to record on-chain verification.
    - Set `POSTCONDITIONS_STATUS=pass` after verification.
+   - Persist `txs.json`, `snapshots/*`, and `postconditions.json`.
 
 Note: `requires_sepolia_rehearsal_proof` defaults to true for mainnet lanes in the template examples.
 Downstreams may explicitly set it to false per lane if they choose to relax the gate.
-5. Write `txs.json`, `snapshots/*`, `postconditions.json`.
 
 ## CI hardening defaults
 - Pin GitHub Actions to commit SHAs.

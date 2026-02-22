@@ -1,19 +1,20 @@
 {
   "network": "mainnet",
-  "chain_id": "SN_MAIN",
+  "chain_id": "1",
   "rpc_allowlist": [
-    "https://starknet-mainnet.g.alchemy.com/v2/<API_KEY>",
-    "https://starknet-mainnet.infura.io/v3/<API_KEY>"
+    "https://eth-mainnet.g.alchemy.com/v2/<API_KEY>",
+    "https://mainnet.infura.io/v3/<API_KEY>",
+    "https://ethereum-rpc.publicnode.com"
   ],
   "signer_aliases": {
     "MAINNET_DEPLOY_SW_A": {
       "type": "keystore",
-      "account_json_env": "MAINNET_DEPLOY_ACCOUNT_JSON",
+      "address_env": "MAINNET_DEPLOY_ADDRESS",
       "keystore_env": "MAINNET_DEPLOY_KEYSTORE_JSON"
     },
     "MAINNET_GOV_SW_A": {
       "type": "keystore",
-      "account_json_env": "MAINNET_GOV_ACCOUNT_JSON",
+      "address_env": "MAINNET_GOV_ADDRESS",
       "keystore_env": "MAINNET_GOV_KEYSTORE_JSON"
     },
     "MAINNET_GOV_HW_B": {
@@ -21,7 +22,7 @@
     },
     "MAINNET_TREASURY_SW_A": {
       "type": "keystore",
-      "account_json_env": "MAINNET_TREASURY_ACCOUNT_JSON",
+      "address_env": "MAINNET_TREASURY_ADDRESS",
       "keystore_env": "MAINNET_TREASURY_KEYSTORE_JSON"
     },
     "MAINNET_TREASURY_HW_B": {
@@ -54,19 +55,22 @@
         "MAINNET_DEPLOY_SW_A"
       ],
       "allowed_ops": [
-        "declare",
-        "deploy"
+        "deploy_contract",
+        "initialize_contract"
       ],
       "required_checks": [
         "chain_id",
         "rpc_allowlist",
         "signer_allowlist",
-        "class_hash",
+        "bytecode_hash",
+        "proxy_implementation",
         "post_deploy_snapshot"
       ],
       "fee_policy": {
-        "max_fee_native": "<SET_ME>",
-        "require_fee_confirmation": true
+        "max_fee_per_gas_gwei": "<SET_ME>",
+        "max_priority_fee_per_gas_gwei": "<SET_ME>",
+        "require_fee_confirmation": true,
+        "enforce_eip1559": true
       },
       "gates": {
         "require_sepolia_rehearsal_proof": true
@@ -84,9 +88,9 @@
         "revoke_role",
         "transfer_ownership",
         "accept_ownership",
-        "multisig_submit",
-        "multisig_confirm",
-        "multisig_execute"
+        "safe_propose",
+        "safe_confirm",
+        "safe_execute"
       ],
       "required_checks": [
         "chain_id",
@@ -110,9 +114,9 @@
         "MAINNET_TREASURY_HW_B"
       ],
       "allowed_ops": [
-        "multisig_submit",
-        "multisig_confirm",
-        "multisig_execute"
+        "safe_propose",
+        "safe_confirm",
+        "safe_execute"
       ],
       "required_checks": [
         "chain_id",
@@ -126,7 +130,7 @@
       "gates": {
         "require_sepolia_rehearsal_proof": true
       },
-      "multisig_rules": {
+      "safe_rules": {
         "gov": {
           "quorum": 2,
           "signers": [
@@ -150,9 +154,9 @@
         "MAINNET_TREASURY_HW_B"
       ],
       "allowed_ops": [
-        "multisig_submit",
-        "multisig_confirm",
-        "multisig_execute"
+        "safe_propose",
+        "safe_confirm",
+        "safe_execute"
       ],
       "required_checks": [
         "chain_id",
@@ -166,7 +170,7 @@
       "gates": {
         "require_sepolia_rehearsal_proof": true
       },
-      "multisig_rules": {
+      "safe_rules": {
         "treasury": {
           "quorum": 2,
           "signers": [
@@ -183,9 +187,9 @@
         "MAINNET_GOV_HW_B"
       ],
       "allowed_ops": [
-        "multisig_submit",
-        "multisig_confirm",
-        "multisig_execute"
+        "safe_propose",
+        "safe_confirm",
+        "safe_execute"
       ],
       "required_checks": [
         "chain_id",
@@ -208,9 +212,9 @@
       "allowed_ops": [
         "pause",
         "freeze",
-        "multisig_submit",
-        "multisig_confirm",
-        "multisig_execute"
+        "safe_propose",
+        "safe_confirm",
+        "safe_execute"
       ],
       "required_checks": [
         "chain_id",

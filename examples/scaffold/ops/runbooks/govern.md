@@ -1,9 +1,9 @@
 # Governance runbook (template)
 
-Purpose: execute governance actions via multisig.
+Purpose: execute governance actions via Safe.
 
 Prereqs:
-- Governance and treasury multisigs are configured.
+- Governance and treasury Safe wallets are configured.
 - Govern lane policy is configured for this network.
 
 Steps:

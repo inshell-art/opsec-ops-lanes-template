@@ -75,6 +75,6 @@ ops/tools/update_ops_template.sh
 - Ensure operator-facing guidance includes `docs/agent-trust-model.md`.
 
 ## Operator safety reminders
-- Keep keystore and `account.json` paths outside the repo and reference via local env vars.
+- Keep keystore files and signer metadata paths outside the repo and reference via local env vars.
 - Never paste private keys or mnemonics into docs, scripts, or chat logs.
 - Do not approve or execute a write without the required checks and approvals.

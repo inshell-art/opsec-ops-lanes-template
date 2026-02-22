@@ -20,4 +20,4 @@ cp ops-template/policy/mainnet.policy.example.json ops/policy/mainnet.policy.jso
 ```
 
 ## Keep secrets out-of-repo
-Store keystore/account.json files outside the repo and reference them via env vars (gitignored).
+Store keystore files and signer metadata outside the repo and reference them via env vars (gitignored).

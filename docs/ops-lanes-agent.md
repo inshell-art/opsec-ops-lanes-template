@@ -1,4 +1,4 @@
-# Ops Lanes (Agent) — operator rules for intent‑gated onchain ops (Keystore + Ledger)
+# Ops Lanes (Agent) — operator rules for intent‑gated onchain ops (EVM, Keystore + Ledger)
 
 This document defines **Ops Lanes** and the responsibilities split between:
 
@@ -14,7 +14,7 @@ It is designed to work with the OPSEC compartments in **OPSEC × Ops-lanes Signe
 ## 0) Vocabulary
 
 - **Lane**: a permission + process boundary defined by:
-  - **Allowed signer set** (which account/multisig may be used)
+  - **Allowed signer set** (which EOA/Safe signer may be used)
   - **Allowed operations** (what actions are permitted)
   - **Required checks** (what must be proven true before execution)
   - **Approval rules** (how/when a human can authorize execution)
@@ -34,7 +34,7 @@ It is designed to work with the OPSEC compartments in **OPSEC × Ops-lanes Signe
    `apply` must read everything from `intent.json` (and bundle artifacts).  
    If you find yourself pasting tx ids, nonces, calldata, proposal ids: stop and fix the tooling.
 
-2) **No “paste into invoke.”**  
+2) **No “paste into execution commands.”**
    If you must paste an address/tx hash, paste only into a dedicated `inputs/*` step that:
    - validates format
    - verifies on-chain identity
@@ -47,7 +47,7 @@ It is designed to work with the OPSEC compartments in **OPSEC × Ops-lanes Signe
    Every write must verify:
    - chain id matches lane config
    - signer matches lane allowlist
-   - target code identity matches expected (class hash / compiled class hash policy / interface)
+   - target code identity matches expected (bytecode hash / proxy implementation / ABI selector policy)
    - preconditions match expected (owner/roles/config)
 
 5) **Plan + Check + Approve + Apply are logically distinct** (even if scripted).  
@@ -77,7 +77,7 @@ Required:
 - `intent.json` — one intent (or bundle intent list) in canonical form
 - `checks.json` — machine proof: identity + preconditions + simulation
 - `approval.json` — human “go” tied to intent/bundle hash
-- `txs.json` — tx hashes and msig step ids produced during apply
+- `txs.json` — tx hashes and Safe step ids produced during apply
 - `snapshots/*.json` — baseline + post-* readbacks
 - `postconditions.json` — pass/fail + evidence pointers
 
@@ -97,7 +97,7 @@ The agent must be able to truthfully say:
 
 **Must do**
 - Resolve labels → addresses from bundle files (never from memory).
-- Generate `intent.json` deterministically (ABI + args → calldata).
+- Generate `intent.json` deterministically (ABI + args -> calldata, or canonical Safe payloads).
 - Run required checks and write `checks.json`.
 - Enforce lane policy: refuse operations outside allowed list.
 - Ask the human for **semantic approval** (not hex review).
@@ -156,37 +156,55 @@ Your job is to approve **meaning**, pick the correct lane/network, and physicall
 
 Each lane is defined by: **Signer(s), Allowed ops, Required checks, Approval rule**.
 
-### Lane 0 — Observe (read-only)
+### Lane `observe` — read-only
 - **Signer:** none
 - **Ops:** reads, snapshots, diffs, simulate/estimate (no state changes)
-- **Checks:** chain id & identity checks recommended
+- **Checks:** chain id and identity checks recommended
 - **Approval:** none
 
-### Lane 1 — Build & Plan (no chain writes)
+### Lane `plan` — build and checks (no chain writes)
 - **Signer:** none
-- **Ops:** compile/build, derive calldata, produce intent/check bundles (no writes)
+- **Ops:** compile/build, derive tx payloads, produce intent/check bundles (no writes)
 - **Checks:** determinism + hashing
 - **Approval:** none
 
-### Lane 2 — Deploy (create primitives)
+### Lane `deploy` — create primitives
 - **Signer:** deployer only
-- **Ops:** declare/deploy, minimal bootstrap config required to make contracts exist
+- **Ops:** deploy contracts/proxies, then initialize bootstrap config
 - **Checks (required):**
   - chain id / rpc allowlist
-  - class hash / compiled class hash policy
+  - bytecode hash / implementation hash policy
   - expected address derivation (if used)
   - post-deploy snapshot
 - **Approval:** required
 
-### Lane 3 — Handoff & Lockdown (remove deployer power)
+### Lane `handoff` — handoff and lockdown
 - **Signer:** deployer (initial) then governance (final)
-- **Ops:** set roles, transfer ownership to GOV multisig, revoke deployer privileges
+- **Ops:** set roles, transfer ownership to GOV Safe, revoke deployer privileges
 - **Checks (required):**
   - current ownership/roles match expected
   - postconditions: deployer cannot mutate protected state
 - **Approval:** required (high safety)
 
-### Lane 4 — Operate (bounded routine actions)
+### Lane `govern` — high-power changes
+- **Signer:** governance Safe signers only
+- **Ops:** upgrades, sensitive config, authority changes
+- **Checks (required):**
+  - strict identity checks + simulation
+  - pre/post state proofs
+  - Safe threshold enforcement
+- **Approval:** via Safe confirmations + bundle approval artifact
+
+### Lane `treasury` — custody actions
+- **Signer:** treasury Safe signers only
+- **Ops:** outflows, custody moves, allowlist changes
+- **Checks (required):**
+  - destination allowlist and limits
+  - simulation + postconditions
+  - Safe threshold enforcement
+- **Approval:** required, usually dual-control
+
+### Lane `operate` — bounded routine actions
 - **Signer:** operator role accounts (not deployer; not treasury unless needed)
 - **Ops:** routine actions within strict bounds
 - **Checks (required):**
@@ -195,17 +213,8 @@ Each lane is defined by: **Signer(s), Allowed ops, Required checks, Approval rul
   - postconditions
 - **Approval:** required (often per-intent)
 
-### Lane 5 — Govern (high-power changes)
-- **Signer:** governance multisig only
-- **Ops:** upgrades, sensitive config, authority changes
-- **Checks (required):**
-  - strict identity checks + simulation
-  - pre/post state proofs
-  - multisig threshold enforcement
-- **Approval:** via multisig confirmations + bundle approval artifact
-
-### Lane 6 — Emergency (break-glass)
-- **Signer:** emergency multisig/key (separate from routine)
+### Lane `emergency` — break-glass
+- **Signer:** emergency Safe/key (separate from routine)
 - **Ops:** pause/freeze, stop-the-bleed actions
 - **Checks (required):**
   - tight allowlist of actions
@@ -241,7 +250,7 @@ Refuse if any of these occur:
 - chain id mismatch
 - rpc not allowlisted
 - signer not allowed for lane
-- target identity mismatch (class hash / compiled class hash / interface)
+- target identity mismatch (bytecode hash / proxy implementation / ABI selectors)
 - preconditions fail (ownership/roles/config not as expected)
 - simulation fails / revert predicted
 - fee above threshold (unless elevated approval exists)

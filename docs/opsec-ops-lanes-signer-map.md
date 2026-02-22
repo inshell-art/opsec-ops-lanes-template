@@ -25,7 +25,7 @@ It is written so you can keep it in a **public template repo** without leaking s
 - **PUBLIC**: open identity + browsing + OSS presence.
 - **OPS**: infra/billing consoles (Cloudflare/registrar/DNS). No wallets.
 - **HOT**: low-stakes “normal user” wallet (tiny funds, disposable).
-- **DEPLOYER**: declare/deploy only; must end with **zero privilege**.
+- **DEPLOYER**: deploy/initialize only; must end with **zero privilege**.
 - **GOV (ADMIN)**: protocol authority (ownership/roles/wiring).
 - **TREASURY**: custody of value; rare outflows.
 - **WATCH**: monitoring only.
@@ -138,7 +138,7 @@ On the signing OS (OS2/OS3), before any signature:
 
 5) Verify on-chain reality:
 - Do not trust `txs.json` alone.
-- Derive / confirm the target msig operation from chain state/events and match it back to the approved intent hash.
+- Derive / confirm the target Safe operation from chain state/events and match it back to the approved intent hash.
 
 This rule is how you get “shared bundles” without re-introducing “clipboard ops”.
 
@@ -169,18 +169,18 @@ Example set (per network):
 
 ## 6) Phase B signer placement (Mainnet recommended)
 
-### GOV / ADMIN multisig (2-of-2)
+### GOV / ADMIN Safe (2-of-2)
 - `MAINNET_GOV_SW_A` → keystore signer on **OS2**
 - `MAINNET_GOV_HW_B` → Ledger signer used on **OS2**
-- Multisig address: `MAINNET_GOV_MSIG`
+- Safe address: `MAINNET_GOV_SAFE`
 
-### TREASURY multisig (2-of-2)
+### TREASURY Safe (2-of-2)
 - `MAINNET_TREASURY_SW_A` → keystore signer on **OS3**
 - `MAINNET_TREASURY_HW_B` → Ledger signer used on **OS3**
-- Multisig address: `MAINNET_TREASURY_MSIG`
+- Safe address: `MAINNET_TREASURY_SAFE`
 
 ### HOT user wallet
-- `MAINNET_HOT_USER` → Braavos extension on OS1 (separate browser profile)
+- `MAINNET_HOT_USER` → MetaMask/Rabby on OS1 (separate browser profile)
 - Never admin. Never treasury.
 
 ### WATCH

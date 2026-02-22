@@ -26,8 +26,8 @@ bundles/
 - Build/test (read-only)
 - Generate bundle:
   - `run.json`
-  - `intent.json`
-  - `checks.json`
+  - `intent.json` (EVM call or Safe transaction payload)
+  - `checks.json` (must include policy-required identity checks for write lanes)
   - `bundle_manifest.json`
 - Upload bundle as CI artifact
 
@@ -35,7 +35,7 @@ bundles/
 - Download bundle from AIRLOCK (untrusted input)
 - Verify manifest hashes + policy compatibility
 - Human approval recorded **before apply**
-- Apply with keystore + Ledger only
+- Apply with keystore + Ledger only (Safe signers for govern/treasury lanes)
 - Produce post-apply evidence (`txs.json`, `snapshots/*`), then run postconditions to generate `postconditions.json`
 
 ## No manual args at apply time
