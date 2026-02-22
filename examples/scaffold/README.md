@@ -1,6 +1,7 @@
 # Scaffold example (downstream repo)
 
 Purpose: provide a minimal, safe layout to integrate this template and run **bundle rehearsals** in CI while keeping **apply** on a Signing OS.
+Default rehearsal network is **devnet** (Sepolia remains optional).
 
 This scaffold is not a runnable system. The scripts in `ops/tools/` are stubs that you must replace for your repo.
 

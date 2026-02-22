@@ -7,8 +7,9 @@ on:
         description: "Target network"
         type: choice
         required: true
-        default: sepolia
+        default: devnet
         options:
+          - devnet
           - sepolia
           - mainnet
       lane:

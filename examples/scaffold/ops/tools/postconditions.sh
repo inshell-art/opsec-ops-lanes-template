@@ -13,7 +13,7 @@ if [[ -n "$BUNDLE_PATH" ]]; then
   BUNDLE_DIR="$BUNDLE_PATH"
 else
   if [[ -z "$NETWORK" || -z "$RUN_ID" ]]; then
-    echo "Usage: NETWORK=<sepolia|mainnet> RUN_ID=<id> $0" >&2
+    echo "Usage: NETWORK=<devnet|sepolia|mainnet> RUN_ID=<id> $0" >&2
     echo "   or: BUNDLE_PATH=<path> $0" >&2
     exit 2
   fi

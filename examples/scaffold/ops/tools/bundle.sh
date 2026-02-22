@@ -7,12 +7,12 @@ RUN_ID=${RUN_ID:-}
 FORCE=${FORCE:-0}
 
 if [[ -z "$NETWORK" || -z "$LANE" || -z "$RUN_ID" ]]; then
-  echo "Usage: NETWORK=<sepolia|mainnet> LANE=<observe|plan|deploy|handoff|govern|treasury|operate|emergency> RUN_ID=<id> $0" >&2
+  echo "Usage: NETWORK=<devnet|sepolia|mainnet> LANE=<observe|plan|deploy|handoff|govern|treasury|operate|emergency> RUN_ID=<id> $0" >&2
   exit 2
 fi
 
 case "$NETWORK" in
-  sepolia|mainnet) ;;
+  devnet|sepolia|mainnet) ;;
   *) echo "Invalid NETWORK: $NETWORK" >&2; exit 2 ;;
 esac
 

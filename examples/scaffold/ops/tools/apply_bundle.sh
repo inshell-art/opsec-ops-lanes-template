@@ -27,7 +27,7 @@ if [[ -n "$BUNDLE_PATH" ]]; then
   BUNDLE_DIR="$BUNDLE_PATH"
 else
   if [[ -z "$NETWORK" || -z "$RUN_ID" ]]; then
-    echo "Usage: NETWORK=<sepolia|mainnet> RUN_ID=<id> $0" >&2
+    echo "Usage: NETWORK=<devnet|sepolia|mainnet> RUN_ID=<id> $0" >&2
     echo "   or: BUNDLE_PATH=<path> $0" >&2
     exit 2
   fi
@@ -101,7 +101,8 @@ if [[ -z "$POLICY_FILE" ]]; then
   exit 2
 fi
 
-REQUIRES_SEPOLIA=$(POLICY_FILE="$POLICY_FILE" RUN_LANE="$LANE_FROM_RUN" python3 - <<'PY'
+read -r REQUIRES_REHEARSAL REHEARSAL_NETWORK <<EOF_REHEARSAL
+$(POLICY_FILE="$POLICY_FILE" RUN_LANE="$LANE_FROM_RUN" python3 - <<'PY'
 import json
 import os
 from pathlib import Path
@@ -111,19 +112,48 @@ policy = json.loads(policy_path.read_text())
 lanes = policy.get("lanes", {})
 lane = lanes.get(run_lane, {})
 gates = lane.get("gates", {})
-flag = lane.get("requires_sepolia_rehearsal_proof", False) or gates.get("require_sepolia_rehearsal_proof", False)
-print("true" if flag else "false")
+
+if not isinstance(gates, dict):
+    gates = {}
+
+new_keys_present = "require_rehearsal_proof" in gates or "rehearsal_proof_network" in gates
+
+if new_keys_present:
+    require_flag = bool(gates.get("require_rehearsal_proof", False))
+    proof_network = str(gates.get("rehearsal_proof_network", "devnet")).strip().lower()
+    if require_flag and proof_network not in {"devnet", "sepolia"}:
+        raise SystemExit(f"invalid rehearsal_proof_network for lane '{run_lane}': {proof_network}")
+    if not require_flag:
+        proof_network = ""
+else:
+    devnet_flag = bool(lane.get("requires_devnet_rehearsal_proof", False) or gates.get("require_devnet_rehearsal_proof", False))
+    sepolia_flag = bool(lane.get("requires_sepolia_rehearsal_proof", False) or gates.get("require_sepolia_rehearsal_proof", False))
+    require_flag = devnet_flag or sepolia_flag
+    if devnet_flag:
+        proof_network = "devnet"
+    elif sepolia_flag:
+        proof_network = "sepolia"
+    else:
+        proof_network = ""
+
+print("true" if require_flag else "false", proof_network)
 PY
 )
+EOF_REHEARSAL
 
-if [[ "$NETWORK_FROM_RUN" == "mainnet" && "$REQUIRES_SEPOLIA" == "true" ]]; then
-  if [[ -z "${SEPOLIA_PROOF_RUN_ID:-}" ]]; then
-    echo "Missing SEPOLIA_PROOF_RUN_ID for mainnet apply" >&2
+if [[ "$NETWORK_FROM_RUN" == "mainnet" && "$REQUIRES_REHEARSAL" == "true" ]]; then
+  PROOF_RUN_ID="${REHEARSAL_PROOF_RUN_ID:-${DEVNET_PROOF_RUN_ID:-${SEPOLIA_PROOF_RUN_ID:-}}}"
+  if [[ -z "$PROOF_RUN_ID" ]]; then
+    echo "Missing rehearsal proof run id for mainnet apply. Set REHEARSAL_PROOF_RUN_ID (fallbacks: DEVNET_PROOF_RUN_ID, SEPOLIA_PROOF_RUN_ID)." >&2
     exit 2
   fi
-  PROOF_DIR="$ROOT/bundles/sepolia/$SEPOLIA_PROOF_RUN_ID"
+  if [[ -z "$REHEARSAL_NETWORK" ]]; then
+    echo "Policy requested rehearsal proof but rehearsal_proof_network is empty for lane: $LANE_FROM_RUN" >&2
+    exit 2
+  fi
+  PROOF_DIR="$ROOT/bundles/$REHEARSAL_NETWORK/$PROOF_RUN_ID"
   if [[ ! -f "$PROOF_DIR/txs.json" || ! -f "$PROOF_DIR/postconditions.json" ]]; then
-    echo "Sepolia proof missing txs.json or postconditions.json: $PROOF_DIR" >&2
+    echo "Rehearsal proof missing txs.json or postconditions.json in $REHEARSAL_NETWORK bundle: $PROOF_DIR" >&2
     exit 2
   fi
 fi

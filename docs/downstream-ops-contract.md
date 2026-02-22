@@ -54,15 +54,26 @@ Downstream repos should paste the root-ready contract snippet into their repo ro
 - Apply **refuses** on manifest mismatch or dirty repo.
 - Chain truth is preferred over local `txs.json` when verifying.
 
-## Sepolia → Mainnet gating
+## Rehearsal → Mainnet gating (Devnet-first)
 If policy requires a rehearsal proof:
-- Mainnet apply **refuses** unless a Sepolia bundle exists with:
+- Mainnet apply **refuses** unless a rehearsal bundle exists on the configured proof network with:
   - `txs.json`
   - `postconditions.json`
   - manifest hash match
 
-At minimum, proof means a successful Sepolia run bundle archived and referenced by run id.
+Canonical gate keys (per lane):
+- `gates.require_rehearsal_proof` (boolean)
+- `gates.rehearsal_proof_network` (`devnet` | `sepolia`)
 
-**Override (explicit only):** downstream repos may set
-`requires_sepolia_rehearsal_proof: false` (or `gates.require_sepolia_rehearsal_proof: false`)
-per lane, but this should be a conscious, documented exception.
+Canonical proof env var:
+- `REHEARSAL_PROOF_RUN_ID`
+
+Backward-compatible fallback support in scaffold apply script:
+- `DEVNET_PROOF_RUN_ID`
+- `SEPOLIA_PROOF_RUN_ID`
+
+Backward-compatible legacy policy keys are temporarily supported for migration:
+- `requires_devnet_rehearsal_proof` / `gates.require_devnet_rehearsal_proof`
+- `requires_sepolia_rehearsal_proof` / `gates.require_sepolia_rehearsal_proof`
+
+At minimum, proof means a successful rehearsal run bundle archived and referenced by run id.

@@ -18,6 +18,7 @@ Goal: create a public-safe template repository named `opsec-ops-lanes-template`.
 - `docs/ops-lanes-agent.md`
 - `docs/opsec-ops-lanes-signer-map.md`
 - `docs/integration.md`
+- `policy/devnet.policy.example.json`
 - `policy/sepolia.policy.example.json`
 - `policy/mainnet.policy.example.json`
 - `schemas/intent.schema.json`

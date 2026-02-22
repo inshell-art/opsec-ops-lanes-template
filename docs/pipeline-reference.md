@@ -4,11 +4,12 @@ This is a minimal “stupid steps” reference for the deterministic pipeline.
 For trust tiers and claim-verification format, see `docs/agent-trust-model.md`.
 
 ## Inputs
-- `NETWORK` (`sepolia` | `mainnet`)
+- `NETWORK` (`devnet` | `sepolia` | `mainnet`)
 - `LANE` (`observe` | `plan` | `deploy` | `handoff` | `govern` | `treasury` | `operate` | `emergency`)
 - `RUN_ID` (string; CI can default to `YYYYMMDDTHHMMSSZ-<short_sha>`)
 - Optional: `BUNDLE_PATH` (local path to a bundle directory)
-- Optional (mainnet only): `SEPOLIA_PROOF_RUN_ID` (run id of the rehearsal bundle)
+- Optional (mainnet only): `REHEARSAL_PROOF_RUN_ID` (run id of the rehearsal proof bundle)
+- Backward-compatible proof env fallback: `DEVNET_PROOF_RUN_ID`, then `SEPOLIA_PROOF_RUN_ID`
 
 ## Outputs
 - Bundle directory: `bundles/<network>/<run_id>/`
@@ -40,7 +41,7 @@ For trust tiers and claim-verification format, see `docs/agent-trust-model.md`.
    - refuses on dirty repo
    - refuses on manifest mismatch
    - refuses if approval missing
-   - refuses if policy requires Sepolia proof and it’s missing
+   - refuses if policy requires rehearsal proof and it’s missing
    - enforces policy fee limits (including EIP-1559 bounds where configured)
    - no manual calldata/addresses at apply time
    - no LLM calls during apply
@@ -50,8 +51,11 @@ For trust tiers and claim-verification format, see `docs/agent-trust-model.md`.
    - Set `POSTCONDITIONS_STATUS=pass` after verification.
    - Persist `txs.json`, `snapshots/*`, and `postconditions.json`.
 
-Note: `requires_sepolia_rehearsal_proof` defaults to true for mainnet lanes in the template examples.
-Downstreams may explicitly set it to false per lane if they choose to relax the gate.
+Note: mainnet write lanes default to:
+- `gates.require_rehearsal_proof: true`
+- `gates.rehearsal_proof_network: "devnet"`
+
+Downstreams may explicitly set `gates.require_rehearsal_proof: false` per lane if they consciously relax the gate.
 
 ## CI hardening defaults
 - Pin GitHub Actions to commit SHAs.

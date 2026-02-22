@@ -5,7 +5,7 @@ A public, repo-safe template for **deterministic** intent-gated Ethereum operati
 
 This repo contains:
 - `docs/ops-lanes-agent.md` — the “Ops Lanes” contract between an agent and a human operator (keystore-mode signing, no accounts-file mode).
-- `docs/opsec-ops-lanes-signer-map.md` — OPSEC compartments + signer aliases + phase split (Sepolia rehearsal → Mainnet).
+- `docs/opsec-ops-lanes-signer-map.md` — OPSEC compartments + signer aliases + phase split (Devnet rehearsal → Mainnet, Sepolia optional).
 - `policy/*.example.json` — example lane policies (RPC allowlist, signer allowlists, EIP-1559 fee thresholds, required checks).
 - `schemas/*` — starter JSON schemas for intent/check/approval artifacts (including EVM + Safe transaction shapes).
 - `examples/*` — toy examples (no real addresses, no secrets).
@@ -38,8 +38,9 @@ This repo **must stay public-safe**:
 - Mainnet writes must be executed via **Local CD on Signing OS**.
 - Remote CI may build/check bundles, but **may not sign**.
 - **No LLM calls inside apply**; only pinned scripts run.
-- If policy requires Sepolia rehearsal proof, Mainnet apply **refuses** without it.
-  - Override only by explicitly disabling the policy gate per lane.
+- If policy requires rehearsal proof, Mainnet apply **refuses** without it.
+  - Default example policy is Devnet-first.
+  - Canonical proof env var is `REHEARSAL_PROOF_RUN_ID` (legacy proof env vars remain temporarily supported).
 
 See `docs/downstream-ops-contract.md`.
 For agent claim verification discipline, see `docs/agent-trust-model.md`.

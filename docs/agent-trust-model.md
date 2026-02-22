@@ -99,7 +99,7 @@ Never store secrets in AIRLOCK.
 ### A) Step 4: `verify_bundle.sh` (integrity proof)
 
 1. Claim (`VERIFIED`):
-Bundle integrity and internal consistency for `bundles/sepolia/<RUN_ID>` was verified by `ops/tools/verify_bundle.sh`.
+Bundle integrity and internal consistency for `bundles/devnet/<RUN_ID>` was verified by `ops/tools/verify_bundle.sh`.
 
 2. Source of truth + repo pin:
 - Script: `ops/tools/verify_bundle.sh`
@@ -109,7 +109,7 @@ Bundle integrity and internal consistency for `bundles/sepolia/<RUN_ID>` was ver
 3. Exact reproduce commands:
 ```bash
 git rev-parse HEAD
-NETWORK=sepolia RUN_ID=<RUN_ID> ops/tools/verify_bundle.sh
+NETWORK=devnet RUN_ID=<RUN_ID> ops/tools/verify_bundle.sh
 echo $?
 ```
 
@@ -122,11 +122,11 @@ echo $?
 
 5. Files read/produced:
 - Reads:
-  - `bundles/sepolia/<RUN_ID>/bundle_manifest.json`
-  - `bundles/sepolia/<RUN_ID>/run.json`
-  - `bundles/sepolia/<RUN_ID>/intent.json`
-  - `bundles/sepolia/<RUN_ID>/checks.json`
-  - `ops/policy/lane.sepolia.json` (or `ops/policy/lane.sepolia.example.json`)
+  - `bundles/devnet/<RUN_ID>/bundle_manifest.json`
+  - `bundles/devnet/<RUN_ID>/run.json`
+  - `bundles/devnet/<RUN_ID>/intent.json`
+  - `bundles/devnet/<RUN_ID>/checks.json`
+  - `ops/policy/lane.devnet.json` (or `ops/policy/lane.devnet.example.json`)
 - Produces:
   - none (verifier only)
 
@@ -149,16 +149,16 @@ Bundle hash and run metadata were recorded for operator review and later audit.
 
 2. Source of truth + repo pin:
 - Files:
-  - `bundles/sepolia/<RUN_ID>/bundle_manifest.json`
-  - `bundles/sepolia/<RUN_ID>/run.json`
+  - `bundles/devnet/<RUN_ID>/bundle_manifest.json`
+  - `bundles/devnet/<RUN_ID>/run.json`
 - Repo pin:
   - `git rev-parse HEAD`
 
 3. Exact reproduce commands:
 ```bash
 git rev-parse HEAD
-python3 -c 'import json; print(json.load(open(\"bundles/sepolia/<RUN_ID>/bundle_manifest.json\"))[\"bundle_hash\"])'
-python3 -c 'import json; r=json.load(open(\"bundles/sepolia/<RUN_ID>/run.json\")); print(f\"run_id={r.get('run_id')} network={r.get('network')} lane={r.get('lane')} git_commit={r.get('git_commit')}\")'
+python3 -c 'import json; print(json.load(open(\"bundles/devnet/<RUN_ID>/bundle_manifest.json\"))[\"bundle_hash\"])'
+python3 -c 'import json; r=json.load(open(\"bundles/devnet/<RUN_ID>/run.json\")); print(f\"run_id={r.get('run_id')} network={r.get('network')} lane={r.get('lane')} git_commit={r.get('git_commit')}\")'
 ```
 
 4. Observed output / expected output + exit code:
@@ -169,8 +169,8 @@ python3 -c 'import json; r=json.load(open(\"bundles/sepolia/<RUN_ID>/run.json\")
 
 5. Files read/produced:
 - Reads:
-  - `bundles/sepolia/<RUN_ID>/bundle_manifest.json`
-  - `bundles/sepolia/<RUN_ID>/run.json`
+  - `bundles/devnet/<RUN_ID>/bundle_manifest.json`
+  - `bundles/devnet/<RUN_ID>/run.json`
 - Produces:
   - none (unless you explicitly write a log/note file)
 

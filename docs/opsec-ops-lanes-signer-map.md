@@ -34,11 +34,12 @@ It is written so you can keep it in a **public template repo** without leaking s
 
 ## 2) Phase split
 
-### Phase A — Sepolia rehearsal (low stakes)
+### Phase A — Devnet rehearsal (low stakes)
 Goal: learning + speed.
 
 - You may run multiple signers on one machine user, but still keep role separation.
 - Use keystore mode for CLI signers; Ledger is recommended as 2nd factor.
+- Sepolia remains optional for public-testnet parity, but Devnet is the default rehearsal network.
 
 ### Phase B — Mainnet (high stakes)
 Goal: reduce attack surface and correlated mistakes.
@@ -82,6 +83,7 @@ Then use a fixed directory structure such as:
 ```
 AIRLOCK/
   bundles/
+    devnet/<run_id>/
     sepolia/<run_id>/
     mainnet/<run_id>/
   inbox/
@@ -152,18 +154,18 @@ Format:
 
 `<NET>_<DOMAIN>_<TYPE>_<A/B>`
 
-- `NET`: `SEPOLIA` / `MAINNET`
+- `NET`: `DEVNET` / `SEPOLIA` / `MAINNET`
 - `DOMAIN`: `DEPLOY` / `GOV` / `TREASURY`
 - `TYPE`: `SW` (software keystore) / `HW` (Ledger)
 - `A/B`: signer index for 2-of-2
 
 Example set (per network):
 
-- `SEPOLIA_DEPLOY_SW_A`
-- `SEPOLIA_GOV_SW_A`
-- `SEPOLIA_GOV_HW_B`
-- `SEPOLIA_TREASURY_SW_A`
-- `SEPOLIA_TREASURY_HW_B`
+- `DEVNET_DEPLOY_SW_A`
+- `DEVNET_GOV_SW_A`
+- `DEVNET_GOV_HW_B`
+- `DEVNET_TREASURY_SW_A`
+- `DEVNET_TREASURY_HW_B`
 
 ---
 

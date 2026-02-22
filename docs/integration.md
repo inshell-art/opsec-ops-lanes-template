@@ -9,7 +9,7 @@ See also:
 
 ## Scaffold example
 
-See `examples/scaffold/` for a minimal downstream repo layout and CI rehearsal stub (plan + check only).
+See `examples/scaffold/` for a minimal downstream repo layout and CI rehearsal stub (plan + check only, Devnet-first).
 An optional bundle workflow example is included for teams that want deterministic bundles.
 
 ## Recommended structure
@@ -22,6 +22,7 @@ downstream-repo/
     schemas/
   ops/
     policy/
+      lane.devnet.json          # your real policy (no secrets)
       lane.sepolia.json         # your real policy (no secrets)
       lane.mainnet.json
     runbooks/
@@ -29,6 +30,8 @@ downstream-repo/
       handoff.md
       govern.md
   artifacts/
+    devnet/current/             # generated artifacts (safe to commit if redacted)
+    devnet/runs/<run_id>/
     sepolia/current/            # generated artifacts (safe to commit if redacted)
     sepolia/runs/<run_id>/
     mainnet/current/
@@ -43,6 +46,10 @@ Use *local-only* locations for keystores and signer metadata:
 Example (operator machine):
 ```
 ~/.opsec/
+  devnet/
+    deploy_sw_a/{address.txt,keystore.json}
+    gov_sw_a/{address.txt,keystore.json}
+    treasury_sw_a/{address.txt,keystore.json}
   sepolia/
     deploy_sw_a/{address.txt,keystore.json}
     gov_sw_a/{address.txt,keystore.json}
@@ -69,6 +76,7 @@ git commit -am "Update ops-template"
 ## What to customize
 
 1) Copy an example policy and edit it:
+- `ops-template/policy/devnet.policy.example.json` → `ops/policy/lane.devnet.json`
 - `ops-template/policy/sepolia.policy.example.json` → `ops/policy/lane.sepolia.json`
 - `ops-template/policy/mainnet.policy.example.json` → `ops/policy/lane.mainnet.json`
 

@@ -10,11 +10,12 @@ git commit -m "Add ops-template submodule"
 
 ## Create instance directories
 ```bash
-mkdir -p ops/policy ops/runbooks artifacts/sepolia/current artifacts/mainnet/current
+mkdir -p ops/policy ops/runbooks artifacts/devnet/current artifacts/sepolia/current artifacts/mainnet/current
 ```
 
 ## Copy example policies (edit placeholders)
 ```bash
+cp ops-template/policy/devnet.policy.example.json ops/policy/lane.devnet.json
 cp ops-template/policy/sepolia.policy.example.json ops/policy/lane.sepolia.json
 cp ops-template/policy/mainnet.policy.example.json ops/policy/lane.mainnet.json
 ```
