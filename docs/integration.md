@@ -22,8 +22,8 @@ downstream-repo/
     schemas/
   ops/
     policy/
-      sepolia.policy.json       # your real policy (no secrets)
-      mainnet.policy.json
+      lane.sepolia.json         # your real policy (no secrets)
+      lane.mainnet.json
     runbooks/
       deploy.md
       handoff.md
@@ -69,8 +69,8 @@ git commit -am "Update ops-template"
 ## What to customize
 
 1) Copy an example policy and edit it:
-- `ops-template/policy/sepolia.policy.example.json` → `ops/policy/sepolia.policy.json`
-- `ops-template/policy/mainnet.policy.example.json` → `ops/policy/mainnet.policy.json`
+- `ops-template/policy/sepolia.policy.example.json` → `ops/policy/lane.sepolia.json`
+- `ops-template/policy/mainnet.policy.example.json` → `ops/policy/lane.mainnet.json`
 
 2) Define your signer aliases (EOA + Safe addresses) in `artifacts/<net>/current/addresses.json`.
 

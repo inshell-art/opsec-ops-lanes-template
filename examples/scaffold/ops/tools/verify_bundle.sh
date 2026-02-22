@@ -125,13 +125,22 @@ if [[ -n "$NETWORK" && "$NETWORK" != "$NETWORK_FROM_RUN" ]]; then
   exit 2
 fi
 
-POLICY_FILE="$ROOT/ops/policy/lane.${NETWORK_FROM_RUN}.json"
-if [[ ! -f "$POLICY_FILE" ]]; then
-  POLICY_FILE="$ROOT/ops/policy/lane.${NETWORK_FROM_RUN}.example.json"
-fi
+POLICY_FILE=""
+for candidate in \
+  "$ROOT/ops/policy/lane.${NETWORK_FROM_RUN}.json" \
+  "$ROOT/ops/policy/${NETWORK_FROM_RUN}.policy.json" \
+  "$ROOT/ops/policy/lane.${NETWORK_FROM_RUN}.example.json" \
+  "$ROOT/ops/policy/${NETWORK_FROM_RUN}.policy.example.json"
+do
+  if [[ -f "$candidate" ]]; then
+    POLICY_FILE="$candidate"
+    break
+  fi
+done
 
-if [[ ! -f "$POLICY_FILE" ]]; then
+if [[ -z "$POLICY_FILE" ]]; then
   echo "Missing policy file for network: $NETWORK_FROM_RUN" >&2
+  echo "Expected one of: lane.${NETWORK_FROM_RUN}.json, ${NETWORK_FROM_RUN}.policy.json, lane.${NETWORK_FROM_RUN}.example.json, ${NETWORK_FROM_RUN}.policy.example.json" >&2
   exit 2
 fi
 

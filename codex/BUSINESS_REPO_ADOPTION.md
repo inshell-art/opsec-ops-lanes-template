@@ -15,8 +15,8 @@ mkdir -p ops/policy ops/runbooks artifacts/sepolia/current artifacts/mainnet/cur
 
 ## Copy example policies (edit placeholders)
 ```bash
-cp ops-template/policy/sepolia.policy.example.json ops/policy/sepolia.policy.json
-cp ops-template/policy/mainnet.policy.example.json ops/policy/mainnet.policy.json
+cp ops-template/policy/sepolia.policy.example.json ops/policy/lane.sepolia.json
+cp ops-template/policy/mainnet.policy.example.json ops/policy/lane.mainnet.json
 ```
 
 ## Keep secrets out-of-repo

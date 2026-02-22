@@ -14,8 +14,11 @@ local/
 **/*.key
 
 # --- Tooling state ---
-.starknet_accounts/
-.starknet/
+.anvil/
+.foundry/
+cache/
+out/
+broadcast/
 node_modules/
 dist/
 build/
