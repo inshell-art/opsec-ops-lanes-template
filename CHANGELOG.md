@@ -1,5 +1,48 @@
 # Changelog
 
+## 2026-03-03
+
+### feat: audit module v1.1 (contract hardening)
+
+- Hardened audit module contract and defaults:
+  - required audit outputs now explicitly include:
+    - `audit_plan.json`
+    - `audit_evidence_index.json`
+    - `audit_verification.json`
+    - `audit_report.json`
+    - `findings.json`
+  - `signoff.json` remains optional but recommended
+- Extended audit policy template with:
+  - `required_artifacts`
+  - `claims.require_tier_labels`
+  - `release_gate.fail_on_status`
+- Updated audit schemas:
+  - `audit_plan.schema.json` requires `generated_at`
+  - `audit_report.schema.json` now requires `network` and `inferred_claims`
+  - `audit_finding.schema.json` now requires `tier`
+- Updated scaffold audit scripts:
+  - `audit_plan.sh` enforces schema-required keys
+  - `audit_report.sh` now requires plan/index/verification inputs, validates claim-tier outputs, and enforces required artifact presence before finalize
+  - `audit_gate.sh` enforces release-gate policy status checks
+- Updated scaffold CI example (`examples/scaffold/.github/workflows/ops_audit.yml`):
+  - supports both periodic audit mode and release-gate mode
+  - includes tag-triggered release-gate example (`v*`)
+- Added scaffold test fixtures/scripts:
+  - `examples/scaffold/tests/audit_smoke.sh`
+  - `examples/scaffold/tests/audit_negative.sh`
+  - negative checks cover manifest mismatch, commit mismatch, missing approval/hash mismatch, and missing required rehearsal postconditions
+- Added missing fixture artifact:
+  - `examples/scaffold/audits/devnet/audit-20260222-example/audit_verification.json`
+
+### migration notes (downstream repos)
+
+- Update `ops/policy/audit.policy.json` from the v1.1 example.
+- Wire audit targets in `ops/Makefile`:
+  - `audit-plan`, `audit-collect`, `audit-verify`, `audit-report`, `audit-signoff`, `audit-gate`
+- Paste/update root `AGENTS.md` snippets:
+  - `docs/snippets/root-AGENTS-ops-agent-contract.md`
+  - `docs/snippets/root-AGENTS-audit-response-contract.md`
+
 ## 2026-03-01
 
 ### feat: audit module v1 (opt-in)

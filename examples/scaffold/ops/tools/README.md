@@ -1,6 +1,7 @@
-# Ops tools (stubs)
+# Ops tools (reference implementations)
 
-These scripts are placeholders. Replace them with your repo's real commands.
+These scripts are runnable reference implementations for the template contracts.
+Downstream repos can adapt them, but should preserve the same inputs/outputs and refusal behavior.
 
 Expected behavior by script:
 - `bundle.sh` creates `run.json`, `intent.json`, `checks.json`, and `bundle_manifest.json`.
@@ -13,13 +14,20 @@ Expected behavior by script:
 - `audit_verify.sh` runs control checks and writes `audit_verification.json`.
 - `audit_report.sh` generates `audit_report.json` and `findings.json`.
 - `audit_signoff.sh` writes `signoff.json` linked to the report hash.
+- `audit_gate.sh` enforces release-gate policy on `audit_report.json`.
+
+Audit output contract:
+- required: `audit_plan.json`, `audit_evidence_index.json`, `audit_verification.json`, `audit_report.json`, `findings.json`
+- optional but recommended: `signoff.json`
 
 All write operations must use keystore mode only. Do not use accounts-file signing.
 
-Optional bundle tooling (reference implementations):
-- `bundle.sh`, `verify_bundle.sh`, `approve_bundle.sh`, `apply_bundle.sh`
+Release gate behavior:
+- periodic audit runs can publish artifacts without blocking releases
+- release-gate runs should fail when `audit_report.json.status` is listed under `release_gate.fail_on_status`
 
-Optional audit tooling (reference implementations):
-- `audit_plan.sh`, `audit_collect.sh`, `audit_verify.sh`, `audit_report.sh`, `audit_signoff.sh`
+Reference tests:
+- `examples/scaffold/tests/audit_smoke.sh`
+- `examples/scaffold/tests/audit_negative.sh`
 
-Review and adapt these scripts before use.
+Review and adapt these scripts before production use.

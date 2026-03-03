@@ -29,5 +29,12 @@ Use scaffold scripts as a baseline:
 - `ops-template/examples/scaffold/ops/tools/audit_report.sh`
 - `ops-template/examples/scaffold/ops/tools/audit_signoff.sh`
 
+Wire make targets in `ops/Makefile`:
+- `audit-plan`, `audit-collect`, `audit-verify`, `audit-report`, `audit-signoff`, `audit-gate`
+
+Paste response-contract snippets into downstream root `AGENTS.md`:
+- `ops-template/docs/snippets/root-AGENTS-ops-agent-contract.md`
+- `ops-template/docs/snippets/root-AGENTS-audit-response-contract.md`
+
 ## Keep secrets out-of-repo
 Store keystore files and signer metadata outside the repo and reference them via env vars (gitignored).

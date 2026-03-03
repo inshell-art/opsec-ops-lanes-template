@@ -15,3 +15,11 @@ Only set the gate to false if you are consciously overriding the control.
 For EVM lanes, set realistic EIP-1559 bounds in each lane's `fee_policy`.
 Legacy keys (`requires_*_rehearsal_proof`, `gates.require_*_rehearsal_proof`) are deprecated but temporarily supported during migration.
 Audit policy controls coverage thresholds and open-finding gates for periodic/release audits.
+Audit contract requires:
+- `audit_plan.json`
+- `audit_evidence_index.json`
+- `audit_verification.json`
+- `audit_report.json`
+- `findings.json`
+Optional but recommended:
+- `signoff.json`

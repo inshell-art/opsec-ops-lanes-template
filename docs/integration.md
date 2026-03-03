@@ -91,3 +91,10 @@ git commit -am "Update ops-template"
 3) Keep runbooks in `ops/runbooks/`, but reference the lane rules in:
 - `ops-template/docs/ops-lanes-agent.md`
 - `ops-template/docs/opsec-ops-lanes-signer-map.md`
+
+4) Wire audit targets in `ops/Makefile`:
+- `audit-plan`, `audit-collect`, `audit-verify`, `audit-report`, `audit-signoff`, `audit-gate`
+
+5) Paste response-contract snippets into downstream root `AGENTS.md`:
+- `ops-template/docs/snippets/root-AGENTS-ops-agent-contract.md`
+- `ops-template/docs/snippets/root-AGENTS-audit-response-contract.md`

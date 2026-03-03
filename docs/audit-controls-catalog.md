@@ -26,6 +26,10 @@ This catalog maps audit controls to lane artifacts and verifier behavior.
 - `AUD-009`: `run.json.network`, plan network, bundle path network
 - `AUD-010`: secret scan output or explicit run-scoped hygiene notes
 
+Each control result must include a claim tier:
+- `VERIFIED` for direct deterministic checks
+- `INFERRED` for indirect claims/heuristics
+
 ## Severity Defaults
 - `AUD-001`: high
 - `AUD-002`: high

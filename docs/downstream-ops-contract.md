@@ -40,9 +40,16 @@ bundles/
 
 ### Audit lane-process assurance (periodic or release-gated)
 - Build an audit plan (`audit_plan.json`) over selected run ids
-- Collect evidence index from bundle artifacts
-- Verify controls and produce findings/report
-- Record signoff tied to report hash
+- Collect evidence index from bundle artifacts (`audit_evidence_index.json`)
+- Verify controls (`audit_verification.json`) and produce findings/report
+- Record signoff tied to report hash (`signoff.json`, optional but recommended)
+
+Audit output contract (required every run):
+- `audit_plan.json`
+- `audit_evidence_index.json`
+- `audit_verification.json`
+- `audit_report.json`
+- `findings.json`
 
 ## No manual args at apply time
 Apply **must not** accept manual calldata, addresses, or tx hashes. It must read from the bundle artifacts.
@@ -57,6 +64,8 @@ See `docs/agent-trust-model.md`.
 Downstream repos should paste the root-ready contract snippet into their repo root `AGENTS.md` so agent runners auto-load it:
 - `docs/snippets/root-AGENTS-ops-agent-contract.md`
 - `docs/snippets/root-AGENTS-audit-response-contract.md`
+
+Audit claims must explicitly separate `VERIFIED` from `INFERRED`.
 
 ## AIRLOCK integrity rules
 - AIRLOCK is **untrusted input**.

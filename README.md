@@ -22,13 +22,14 @@ This repo contains:
 - `schemas/bundle_manifest.schema.json` — schema for bundle manifests (AIRLOCK integrity).
 - `schemas/audit_*.schema.json` — audit plan/report/findings schema set.
 - `policy/audit.policy.example.json` — audit policy template (coverage and finding thresholds).
+- `examples/scaffold/.github/workflows/ops_audit.yml` — scheduled audit + release-gate CI example.
 
 ## What this template is (and is not)
 
 **It is:**
 - A disciplined process for *how* to deploy, handoff, and govern using deterministic intents + checks + approvals.
 - A way to make agent-assisted ops safer by forcing “meaning approval” and “reality verification”.
-- An opt-in audit module for periodic/release process assurance over lane artifacts.
+- A first-class audit module for periodic/release process assurance over lane artifacts.
 
 **It is not:**
 - A wallet tutorial.
@@ -81,6 +82,16 @@ For a minimal CI/CD scaffold you can copy into a downstream repo, see:
 `examples/scaffold/`.
 For an audit fixture example, see:
 `examples/scaffold/audits/devnet/audit-20260222-example/`.
+
+Audit output contract (required):
+- `audit_plan.json`
+- `audit_evidence_index.json`
+- `audit_verification.json`
+- `audit_report.json`
+- `findings.json`
+
+Optional but recommended:
+- `signoff.json`
 
 ## License
 

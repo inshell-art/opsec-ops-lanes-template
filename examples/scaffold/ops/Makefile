@@ -8,7 +8,7 @@ BUNDLE_PATH ?=
 AUDIT_ID ?=
 AUDIT_PATH ?=
 
-.PHONY: bundle verify approve apply postconditions audit-plan audit-collect audit-verify audit-report audit-signoff audit-all scan-secrets
+.PHONY: bundle verify approve apply postconditions audit-plan audit-collect audit-verify audit-report audit-signoff audit-gate audit-all scan-secrets
 
 bundle:
 	NETWORK=$(NETWORK) LANE=$(LANE) RUN_ID=$(RUN_ID) $(ROOT)/ops/tools/bundle.sh
@@ -39,6 +39,9 @@ audit-report:
 
 audit-signoff:
 	NETWORK=$(NETWORK) AUDIT_ID=$(AUDIT_ID) AUDIT_PATH=$(AUDIT_PATH) $(ROOT)/ops/tools/audit_signoff.sh
+
+audit-gate:
+	NETWORK=$(NETWORK) AUDIT_ID=$(AUDIT_ID) AUDIT_PATH=$(AUDIT_PATH) $(ROOT)/ops/tools/audit_gate.sh
 
 audit-all: audit-plan audit-collect audit-verify audit-report
 

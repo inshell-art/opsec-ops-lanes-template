@@ -57,6 +57,7 @@ For trust tiers and claim-verification format, see `docs/agent-trust-model.md`.
    - `ops/tools/audit_collect.sh`
    - `ops/tools/audit_verify.sh`
    - `ops/tools/audit_report.sh`
+   - `make -C ops audit-gate NETWORK=<network> AUDIT_ID=<audit_id>` for release gating
    - optional `ops/tools/audit_signoff.sh`
 
 Note: mainnet write lanes default to:
