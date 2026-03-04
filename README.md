@@ -21,6 +21,7 @@ This repo contains:
 - `docs/snippets/root-AGENTS-audit-response-contract.md` — root-ready audit response contract snippet.
 - `schemas/bundle_manifest.schema.json` — schema for bundle manifests (AIRLOCK integrity).
 - `schemas/audit_*.schema.json` — audit plan/report/findings schema set.
+- `schemas/deploy_params.schema.json` — baseline schema for deploy params pinning.
 - `policy/audit.policy.example.json` — audit policy template (coverage and finding thresholds).
 - `examples/scaffold/.github/workflows/ops_audit.yml` — scheduled audit + release-gate CI example.
 
@@ -49,6 +50,7 @@ This repo **must stay public-safe**:
 - If policy requires rehearsal proof, Mainnet apply **refuses** without it.
   - Default example policy is Devnet-first.
   - Canonical proof env var is `REHEARSAL_PROOF_RUN_ID` (legacy proof env vars remain temporarily supported).
+- Sepolia/Mainnet deploy lanes pin deploy params by default (`deploy_params_pinned` + bundled `deploy_params.json`).
 
 See `docs/downstream-ops-contract.md`.
 For agent claim verification discipline, see `docs/agent-trust-model.md`.

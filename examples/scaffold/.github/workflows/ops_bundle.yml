@@ -30,6 +30,10 @@ on:
         description: "Optional run id (default: timestamp + short SHA)"
         type: string
         required: false
+      deploy_params_json:
+        description: "Optional deploy params JSON (required for sepolia/mainnet deploy lane)"
+        type: string
+        required: false
 
 jobs:
   bundle:
@@ -52,7 +56,17 @@ jobs:
           NETWORK: ${{ inputs.network }}
           LANE: ${{ inputs.lane }}
           RUN_ID: ${{ steps.runid.outputs.run_id }}
+          DEPLOY_PARAMS_JSON: ${{ inputs.deploy_params_json }}
         run: |
+          if [[ "$LANE" == "deploy" && ( "$NETWORK" == "sepolia" || "$NETWORK" == "mainnet" ) ]]; then
+            if [[ -z "$DEPLOY_PARAMS_JSON" ]]; then
+              echo "deploy_params_json input is required for sepolia/mainnet deploy lane." >&2
+              exit 2
+            fi
+            DEPLOY_PARAMS_PATH="${RUNNER_TEMP}/deploy_params.json"
+            printf '%s\n' "$DEPLOY_PARAMS_JSON" > "$DEPLOY_PARAMS_PATH"
+            export DEPLOY_PARAMS_FILE="$DEPLOY_PARAMS_PATH"
+          fi
           ./ops/tools/bundle.sh
       - name: Upload bundle
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

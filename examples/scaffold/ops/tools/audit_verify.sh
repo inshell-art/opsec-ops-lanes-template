@@ -329,6 +329,97 @@ if "AUD-010" in controls:
     else:
         results.append(make_result("AUD-010", "pass", "INFERRED", "No suspicious secret-like filenames in indexed artifacts."))
 
+# AUD-011
+if "AUD-011" in controls:
+    applicable = []
+    fails = []
+    for ctx in run_context:
+        run = ctx.get("run") or {}
+        lane = run.get("lane")
+        run_network = run.get("network")
+        if lane != "deploy" or run_network not in {"sepolia", "mainnet"}:
+            continue
+
+        lane_cfg = ((policy or {}).get("lanes", {}).get(lane, {}))
+        required_checks = lane_cfg.get("required_checks", [])
+        if not isinstance(required_checks, list):
+            required_checks = []
+
+        deploy_defaults = {
+            "required_networks": ["sepolia", "mainnet"],
+            "required_lanes": ["deploy"],
+            "bundle_filename": "deploy_params.json",
+        }
+        deploy_cfg = dict(deploy_defaults)
+        if isinstance((policy or {}).get("deploy_params"), dict):
+            deploy_cfg.update((policy or {}).get("deploy_params"))
+
+        required_networks = deploy_cfg.get("required_networks", [])
+        required_lanes = deploy_cfg.get("required_lanes", [])
+        if not isinstance(required_networks, list):
+            required_networks = []
+        if not isinstance(required_lanes, list):
+            required_lanes = []
+
+        requires = (
+            run_network in required_networks
+            and lane in required_lanes
+            and "deploy_params_pinned" in required_checks
+        )
+        if not requires:
+            continue
+
+        if not ctx.get("txs"):
+            # Enforcement at apply cannot be proven without apply evidence.
+            continue
+
+        applicable.append(ctx["run_id"])
+        filename = str(deploy_cfg.get("bundle_filename", "deploy_params.json"))
+        params_path = ctx["bundle_dir"] / filename
+        if not params_path.exists():
+            fails.append(f"{ctx['run_id']}: missing bundled deploy params ({filename})")
+            continue
+
+        params_hash = hashlib.sha256(params_path.read_bytes()).hexdigest()
+        manifest = ctx.get("manifest") or {}
+        manifest_entries = {
+            i.get("path"): i.get("sha256")
+            for i in (manifest.get("immutable_files") or [])
+            if isinstance(i, dict)
+        }
+        if filename not in manifest_entries:
+            fails.append(f"{ctx['run_id']}: deploy params missing from immutable manifest")
+            continue
+        if manifest_entries.get(filename) != params_hash:
+            fails.append(f"{ctx['run_id']}: deploy params hash mismatch vs manifest")
+            continue
+
+        intent = ctx.get("intent") or {}
+        if intent.get("deploy_params_sha256") != params_hash:
+            fails.append(f"{ctx['run_id']}: intent deploy_params_sha256 mismatch")
+            continue
+
+        approval = ctx.get("approval") or {}
+        if approval.get("deploy_params_sha256") != params_hash:
+            fails.append(f"{ctx['run_id']}: approval deploy_params_sha256 mismatch")
+            continue
+
+        txs = ctx.get("txs") or {}
+        if txs.get("deploy_params_sha256") != params_hash:
+            fails.append(f"{ctx['run_id']}: txs.json deploy_params_sha256 mismatch")
+            continue
+        tx_params_file = txs.get("deploy_params_file", "")
+        if not isinstance(tx_params_file, str) or not tx_params_file.endswith(f"/{filename}"):
+            fails.append(f"{ctx['run_id']}: txs.json deploy_params_file missing or unexpected")
+            continue
+
+    if not applicable:
+        results.append(make_result("AUD-011", "skip", "INFERRED", "No applied deploy runs requiring deploy params pinning in scope."))
+    elif fails:
+        results.append(make_result("AUD-011", "fail", "VERIFIED", "; ".join(fails)))
+    else:
+        results.append(make_result("AUD-011", "pass", "VERIFIED", "Deploy params were pinned and enforced at apply."))
+
 verification = {
     "audit_id": plan.get("audit_id"),
     "network": network,

@@ -59,6 +59,7 @@ Schemas:
 ## Controls
 Control IDs and intent are defined in:
 - `docs/audit-controls-catalog.md`
+Includes `AUD-011` for deploy-params pinning/enforcement.
 
 ## Policy
 Audit policy template:

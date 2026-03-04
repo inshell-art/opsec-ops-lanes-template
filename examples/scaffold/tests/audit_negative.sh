@@ -97,18 +97,19 @@ PY
 expect_fail "approval hash mismatch" env SIGNING_OS=1 NETWORK=devnet RUN_ID=neg-hash-mismatch ops/tools/apply_bundle.sh
 
 # 5) missing postconditions when rehearsal proof is required
-NETWORK=mainnet LANE=deploy RUN_ID=neg-proof-missing-post ops/tools/bundle.sh
+NETWORK=mainnet LANE=handoff RUN_ID=neg-proof-missing-post ops/tools/bundle.sh
 python3 - <<'PY'
 import json
 from pathlib import Path
 bundle = Path("bundles/mainnet/neg-proof-missing-post")
 manifest = json.loads((bundle / "bundle_manifest.json").read_text())
+run = json.loads((bundle / "run.json").read_text())
 approval = {
     "approved_at": "2026-03-03T00:00:00Z",
     "approver": "negative-test",
-    "network": "mainnet",
-    "lane": "deploy",
-    "run_id": "neg-proof-missing-post",
+    "network": run.get("network", "mainnet"),
+    "lane": run.get("lane", "handoff"),
+    "run_id": run.get("run_id", "neg-proof-missing-post"),
     "bundle_hash": manifest.get("bundle_hash", ""),
     "intent_hash": "",
     "notes": "negative fixture"

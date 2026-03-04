@@ -28,12 +28,14 @@ bundles/
   - `run.json`
   - `intent.json` (EVM call or Safe transaction payload)
   - `checks.json` (must include policy-required identity checks for write lanes)
+  - `deploy_params.json` for required deploy lanes (Sepolia/Mainnet default)
   - `bundle_manifest.json`
 - Upload bundle as CI artifact
 
 ### Local CD (Signing OS only)
 - Download bundle from AIRLOCK (untrusted input)
 - Verify manifest hashes + policy compatibility
+- Verify deploy params pinning (`deploy_params.json` + `intent.json.deploy_params_sha256`) when required
 - Human approval recorded **before apply**
 - Apply with keystore + Ledger only (Safe signers for govern/treasury lanes)
 - Produce post-apply evidence (`txs.json`, `snapshots/*`), then run postconditions to generate `postconditions.json`
@@ -53,6 +55,7 @@ Audit output contract (required every run):
 
 ## No manual args at apply time
 Apply **must not** accept manual calldata, addresses, or tx hashes. It must read from the bundle artifacts.
+For required deploy lanes, apply must set params path from the bundle internally and reject mismatched external overrides.
 
 ## No LLM in apply
 LLMs may be used to author scripts and docs, but **must never** be invoked at runtime for apply.

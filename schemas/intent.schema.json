@@ -18,6 +18,9 @@
     "lane": {
       "type": "string"
     },
+    "deploy_params_sha256": {
+      "type": "string"
+    },
     "signer_alias": {
       "type": "string"
     },

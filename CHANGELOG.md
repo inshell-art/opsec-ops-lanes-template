@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-03-04
+
+### feat: deploy params integrity gate (Sepolia/Mainnet deploy lanes)
+
+- Added deploy params policy contract to Sepolia/Mainnet lane examples:
+  - `deploy_params.required_networks`, `deploy_params.required_lanes`
+  - `deploy_params.bundle_filename`, `deploy_params.apply_env_var`
+  - `deploy_params.canonicalization`, `deploy_params.allow_external_override`
+  - `deploy_params.schema_file`, `deploy_params.semantic_validator_cmd`
+- Added `deploy_params_pinned` to `lanes.deploy.required_checks` in Sepolia/Mainnet policy examples.
+- Added new schema:
+  - `schemas/deploy_params.schema.json`
+- Updated scaffold bundle flow:
+  - `bundle.sh` now requires/canonicalizes deploy params for required lanes and pins hash in `intent.json.deploy_params_sha256`
+  - `bundle_manifest.json` includes bundled deploy params as immutable when present
+- Updated verifier:
+  - `verify_bundle.sh` enforces deploy params presence/hash/manifest binding/schema validation and optional semantic validator command
+- Updated approval/apply binding:
+  - `approve_bundle.sh` now includes `deploy_params_sha256` in `approval.json`
+  - approval phrase includes deploy params hash suffix when present
+  - `apply_bundle.sh` enforces bundled deploy params path/hash binding and records params path/hash in `txs.json` and `snapshots/post_state.json`
+- Added audit control:
+  - `AUD-011` Deploy params pinned and enforced at apply
+  - wired into `docs/audit-controls-catalog.md`, `audit.policy.example.json`, and scaffold `audit_verify.sh` / `audit_report.sh`
+- Added scaffold test:
+  - `examples/scaffold/tests/deploy_params_gate.sh`
+
 ## 2026-03-03
 
 ### feat: audit module v1.1 (contract hardening)

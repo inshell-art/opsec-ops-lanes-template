@@ -21,6 +21,11 @@ cp ops-template/policy/mainnet.policy.example.json ops/policy/lane.mainnet.json
 cp ops-template/policy/audit.policy.example.json ops/policy/audit.policy.json
 ```
 
+For Sepolia/Mainnet deploy lanes:
+- keep `deploy_params_pinned` in `lanes.deploy.required_checks`
+- set `DEPLOY_PARAMS_FILE=<local_path>` before bundle generation
+- keep `deploy_params.semantic_validator_cmd` empty upstream and set it downstream if protocol-specific rules are needed
+
 ## Add audit module scripts
 Use scaffold scripts as a baseline:
 - `ops-template/examples/scaffold/ops/tools/audit_plan.sh`

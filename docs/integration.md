@@ -86,6 +86,10 @@ git commit -am "Update ops-template"
 - `ops-template/policy/mainnet.policy.example.json` → `ops/policy/lane.mainnet.json`
 - `ops-template/policy/audit.policy.example.json` → `ops/policy/audit.policy.json`
 
+For Sepolia/Mainnet deploy lanes, wire local params input:
+- set `DEPLOY_PARAMS_FILE=<local_path>` before `ops/tools/bundle.sh`
+- keep params outside git or committed only if safe/public by design
+
 2) Define your signer aliases (EOA + Safe addresses) in `artifacts/<net>/current/addresses.json`.
 
 3) Keep runbooks in `ops/runbooks/`, but reference the lane rules in:

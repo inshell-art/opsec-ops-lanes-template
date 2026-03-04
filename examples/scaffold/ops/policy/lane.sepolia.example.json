@@ -38,7 +38,8 @@
         "rpc_allowlist",
         "signer_allowlist",
         "bytecode_hash",
-        "proxy_implementation"
+        "proxy_implementation",
+        "deploy_params_pinned"
       ],
       "fee_policy": {
         "max_fee_per_gas_gwei": "<SET_ME>",
@@ -135,5 +136,20 @@
         "rehearsal_proof_network": "devnet"
       }
     }
+  },
+  "deploy_params": {
+    "required_networks": [
+      "sepolia",
+      "mainnet"
+    ],
+    "required_lanes": [
+      "deploy"
+    ],
+    "bundle_filename": "deploy_params.json",
+    "apply_env_var": "DEPLOY_PARAMS_FILE",
+    "canonicalization": "json_sorted",
+    "allow_external_override": false,
+    "schema_file": "schemas/deploy_params.schema.json",
+    "semantic_validator_cmd": ""
   }
 }
