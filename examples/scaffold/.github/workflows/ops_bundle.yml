@@ -30,8 +30,8 @@ on:
         description: "Optional run id (default: timestamp + short SHA)"
         type: string
         required: false
-      deploy_params_json:
-        description: "Optional deploy params JSON (required for sepolia/mainnet deploy lane)"
+      inputs_json:
+        description: "Optional locked inputs wrapper JSON (required when lane policy requires inputs)"
         type: string
         required: false
 
@@ -56,16 +56,16 @@ jobs:
           NETWORK: ${{ inputs.network }}
           LANE: ${{ inputs.lane }}
           RUN_ID: ${{ steps.runid.outputs.run_id }}
-          DEPLOY_PARAMS_JSON: ${{ inputs.deploy_params_json }}
+          INPUTS_JSON: ${{ inputs.inputs_json }}
         run: |
           if [[ "$LANE" == "deploy" && ( "$NETWORK" == "sepolia" || "$NETWORK" == "mainnet" ) ]]; then
-            if [[ -z "$DEPLOY_PARAMS_JSON" ]]; then
-              echo "deploy_params_json input is required for sepolia/mainnet deploy lane." >&2
+            if [[ -z "$INPUTS_JSON" ]]; then
+              echo "inputs_json input is required for sepolia/mainnet deploy lane." >&2
               exit 2
             fi
-            DEPLOY_PARAMS_PATH="${RUNNER_TEMP}/deploy_params.json"
-            printf '%s\n' "$DEPLOY_PARAMS_JSON" > "$DEPLOY_PARAMS_PATH"
-            export DEPLOY_PARAMS_FILE="$DEPLOY_PARAMS_PATH"
+            INPUTS_TEMPLATE_PATH="${RUNNER_TEMP}/inputs.json"
+            printf '%s\n' "$INPUTS_JSON" > "$INPUTS_TEMPLATE_PATH"
+            export INPUTS_TEMPLATE="$INPUTS_TEMPLATE_PATH"
           fi
           ./ops/tools/bundle.sh
       - name: Upload bundle

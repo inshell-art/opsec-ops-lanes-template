@@ -86,9 +86,11 @@ git commit -am "Update ops-template"
 - `ops-template/policy/mainnet.policy.example.json` → `ops/policy/lane.mainnet.json`
 - `ops-template/policy/audit.policy.example.json` → `ops/policy/audit.policy.json`
 
-For Sepolia/Mainnet deploy lanes, wire local params input:
-- set `DEPLOY_PARAMS_FILE=<local_path>` before `ops/tools/bundle.sh`
-- keep params outside git or committed only if safe/public by design
+For Sepolia/Mainnet deploy lanes, wire locked inputs:
+- run `ops/tools/lock_inputs.sh` with `NETWORK`, `LANE`, `RUN_ID`, and `INPUT_FILE=<local_params_json>`
+- optionally set `PARAMS_SCHEMA=<downstream_schema_path>` for stricter validation
+- pass `INPUTS_TEMPLATE=<artifacts/<network>/current/inputs/inputs.<run_id>.json>` to `ops/tools/bundle.sh`
+- keep raw params outside git (or commit only if intentionally public/safe)
 
 2) Define your signer aliases (EOA + Safe addresses) in `artifacts/<net>/current/addresses.json`.
 

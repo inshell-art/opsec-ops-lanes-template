@@ -13,17 +13,18 @@ These scripts validate the template audit module contracts in an isolated tempor
     - missing approval
     - approval hash mismatch
     - missing postconditions in required rehearsal proof
-- `deploy_params_gate.sh`
-  - Verifies deploy params integrity gate behavior:
-    - missing params fail for Sepolia/Mainnet deploy bundle
-    - mutated bundled params fail verify
+- `inputs_gate.sh`
+  - Verifies first-class inputs integrity gate behavior:
+    - missing required inputs fail
+    - mutated bundled inputs fail verify
+    - coherence mismatch fails verify
     - external override fails apply
-    - valid pinned params pass verify/apply and are recorded in apply evidence
+    - valid pinned inputs pass verify/apply and are recorded in apply evidence
     - mainnet rehearsal-proof gate remains enforced
 
 ## Usage
 ```bash
 examples/scaffold/tests/audit_smoke.sh
 examples/scaffold/tests/audit_negative.sh
-examples/scaffold/tests/deploy_params_gate.sh
+examples/scaffold/tests/inputs_gate.sh
 ```

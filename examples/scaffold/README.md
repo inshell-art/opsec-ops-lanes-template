@@ -26,7 +26,7 @@ This scaffold is a runnable reference baseline. Adapt `ops/tools/` for your repo
 - After apply, run postconditions to record chain verification.
 - Run periodic `audit-all` to validate process controls over lane artifacts.
 - Use `audit-gate` for release branches/tags.
-- Sepolia/Mainnet deploy lanes pin `deploy_params.json` by default (`DEPLOY_PARAMS_FILE` -> bundled artifact).
+- Sepolia/Mainnet deploy lanes require pinned `inputs.json` by default (`required_inputs`, generated via `ops/tools/lock_inputs.sh` and passed as `INPUTS_TEMPLATE`).
 - No LLM calls are allowed at apply time.
 - HOT wallets are not ops-lane signers.
 

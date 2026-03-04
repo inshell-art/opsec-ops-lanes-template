@@ -22,9 +22,10 @@ cp ops-template/policy/audit.policy.example.json ops/policy/audit.policy.json
 ```
 
 For Sepolia/Mainnet deploy lanes:
-- keep `deploy_params_pinned` in `lanes.deploy.required_checks`
-- set `DEPLOY_PARAMS_FILE=<local_path>` before bundle generation
-- keep `deploy_params.semantic_validator_cmd` empty upstream and set it downstream if protocol-specific rules are needed
+- keep `required_inputs: [{\"kind\":\"constructor_params\"}]` in lane policy
+- run `ops/tools/lock_inputs.sh` before bundle generation
+- pass `INPUTS_TEMPLATE=<locked_inputs_path>` to `ops/tools/bundle.sh`
+- use `PARAMS_SCHEMA` in `lock_inputs.sh` for downstream-specific strict validation
 
 ## Add audit module scripts
 Use scaffold scripts as a baseline:

@@ -2,6 +2,37 @@
 
 ## 2026-03-04
 
+### breaking: replace deploy-params gate with first-class `inputs.json`
+
+- Switched Sepolia/Mainnet deploy lane examples to policy-driven inputs requirements:
+  - `lanes.deploy.required_inputs: [{"kind": "constructor_params"}]`
+- Added first-class inputs wrapper schema:
+  - `schemas/inputs.schema.json`
+- Added lock helper:
+  - `examples/scaffold/ops/tools/lock_inputs.sh`
+- Updated scaffold pipeline scripts:
+  - `bundle.sh` now accepts `INPUTS_TEMPLATE` and pins `intent.json.inputs_sha256`
+  - `verify_bundle.sh` validates `inputs.json` schema + coherence + hash binding
+  - `approve_bundle.sh` binds `approval.json.inputs_sha256`
+  - `apply_bundle.sh` enforces bundled `inputs.json` for lanes with `required_inputs` and rejects mismatched external `INPUTS_FILE`
+- Updated CI and tests:
+  - workflow input moved to `inputs_json`
+  - added `examples/scaffold/tests/inputs_gate.sh`
+- Updated audit control evidence for `AUD-011` to inputs-wrapper artifacts.
+- Removed old deploy-params-only schema:
+  - `schemas/deploy_params.schema.json`
+
+### migration notes (downstream repos)
+
+- Replace deploy-params policy blocks with lane-level `required_inputs`.
+- Replace `DEPLOY_PARAMS_FILE` flow with:
+  - `ops/tools/lock_inputs.sh` (source params -> locked wrapper)
+  - `INPUTS_TEMPLATE=<locked_wrapper_path>` for `ops/tools/bundle.sh`
+- Update downstream artifact bindings:
+  - `intent.json.inputs_sha256`
+  - `approval.json.inputs_sha256`
+  - apply evidence `txs.json.inputs_file` + `txs.json.inputs_sha256`
+
 ### feat: deploy params integrity gate (Sepolia/Mainnet deploy lanes)
 
 - Added deploy params policy contract to Sepolia/Mainnet lane examples:

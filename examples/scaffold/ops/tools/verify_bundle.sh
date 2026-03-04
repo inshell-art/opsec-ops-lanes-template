@@ -28,145 +28,12 @@ if [[ ! -f "$BUNDLE_DIR/bundle_manifest.json" ]]; then
   exit 2
 fi
 
-export BUNDLE_DIR
+export BUNDLE_DIR ROOT NETWORK
 
 python3 - <<'PY'
 import hashlib
 import json
 import os
-from pathlib import Path
-
-bundle_dir = Path(os.environ["BUNDLE_DIR"])
-manifest_path = bundle_dir / "bundle_manifest.json"
-manifest = json.loads(manifest_path.read_text())
-
-items = manifest.get("immutable_files", [])
-if not items:
-    raise SystemExit("manifest has no immutable_files")
-
-required = {"run.json", "intent.json", "checks.json"}
-paths = {item.get("path") for item in items}
-missing = required - paths
-if missing:
-    raise SystemExit(f"manifest missing required files: {', '.join(sorted(missing))}")
-
-recomputed = []
-for item in items:
-    path = item.get("path")
-    if not path:
-        raise SystemExit("manifest entry missing path")
-    data = (bundle_dir / path).read_bytes()
-    digest = hashlib.sha256(data).hexdigest()
-    if digest != item.get("sha256"):
-        raise SystemExit(f"hash mismatch for {path}")
-    recomputed.append({"path": path, "sha256": digest})
-
-bundle_hash_input = "\n".join([f"{i['path']}={i['sha256']}" for i in recomputed]).encode()
-expected_bundle_hash = hashlib.sha256(bundle_hash_input).hexdigest()
-if expected_bundle_hash != manifest.get("bundle_hash"):
-    raise SystemExit("bundle_hash mismatch")
-
-print("Manifest hashes verified")
-PY
-
-if [[ ! -f "$BUNDLE_DIR/run.json" ]]; then
-  echo "Missing run.json" >&2
-  exit 2
-fi
-
-RUN_COMMIT=$(python3 - <<'PY'
-import json
-import os
-from pathlib import Path
-bundle_dir = Path(os.environ["BUNDLE_DIR"])
-run = json.loads((bundle_dir / "run.json").read_text())
-print(run.get("git_commit", ""))
-PY
-)
-
-if [[ -z "$RUN_COMMIT" ]]; then
-  echo "run.json missing git_commit" >&2
-  exit 2
-fi
-
-CURRENT_COMMIT=$(git rev-parse HEAD)
-if [[ "$CURRENT_COMMIT" != "$RUN_COMMIT" ]]; then
-  echo "Commit mismatch: run.json=$RUN_COMMIT current=$CURRENT_COMMIT" >&2
-  exit 2
-fi
-
-NETWORK_FROM_RUN=$(python3 - <<'PY'
-import json
-import os
-from pathlib import Path
-bundle_dir = Path(os.environ["BUNDLE_DIR"])
-run = json.loads((bundle_dir / "run.json").read_text())
-print(run.get("network", ""))
-PY
-)
-
-LANE_FROM_RUN=$(python3 - <<'PY'
-import json
-import os
-from pathlib import Path
-bundle_dir = Path(os.environ["BUNDLE_DIR"])
-run = json.loads((bundle_dir / "run.json").read_text())
-print(run.get("lane", ""))
-PY
-)
-
-if [[ -z "$NETWORK_FROM_RUN" || -z "$LANE_FROM_RUN" ]]; then
-  echo "run.json missing network or lane" >&2
-  exit 2
-fi
-
-if [[ -n "$NETWORK" && "$NETWORK" != "$NETWORK_FROM_RUN" ]]; then
-  echo "Network mismatch: $NETWORK vs $NETWORK_FROM_RUN" >&2
-  exit 2
-fi
-
-POLICY_FILE=""
-for candidate in \
-  "$ROOT/ops/policy/lane.${NETWORK_FROM_RUN}.json" \
-  "$ROOT/ops/policy/${NETWORK_FROM_RUN}.policy.json" \
-  "$ROOT/ops/policy/lane.${NETWORK_FROM_RUN}.example.json" \
-  "$ROOT/ops/policy/${NETWORK_FROM_RUN}.policy.example.json" \
-  "$ROOT/policy/${NETWORK_FROM_RUN}.policy.example.json"
-do
-  if [[ -f "$candidate" ]]; then
-    POLICY_FILE="$candidate"
-    break
-  fi
-done
-
-if [[ -z "$POLICY_FILE" ]]; then
-  echo "Missing policy file for network: $NETWORK_FROM_RUN" >&2
-  echo "Expected one of: lane.${NETWORK_FROM_RUN}.json, ${NETWORK_FROM_RUN}.policy.json, lane.${NETWORK_FROM_RUN}.example.json, ${NETWORK_FROM_RUN}.policy.example.json, policy/${NETWORK_FROM_RUN}.policy.example.json" >&2
-  exit 2
-fi
-
-LANE_OK=$(POLICY_FILE="$POLICY_FILE" RUN_LANE="$LANE_FROM_RUN" python3 - <<'PY'
-import json
-import os
-from pathlib import Path
-policy_path = Path(os.environ["POLICY_FILE"])
-run_lane = os.environ["RUN_LANE"]
-policy = json.loads(policy_path.read_text())
-lanes = policy.get("lanes", {})
-print("ok" if run_lane in lanes else "missing")
-PY
-)
-
-if [[ "$LANE_OK" != "ok" ]]; then
-  echo "Lane '$LANE_FROM_RUN' not found in policy: $POLICY_FILE" >&2
-  exit 2
-fi
-
-ROOT="$ROOT" POLICY_FILE="$POLICY_FILE" BUNDLE_DIR="$BUNDLE_DIR" RUN_NETWORK="$NETWORK_FROM_RUN" RUN_LANE="$LANE_FROM_RUN" python3 - <<'PY'
-import hashlib
-import json
-import os
-import subprocess
 from pathlib import Path
 
 
@@ -182,141 +49,194 @@ def type_ok(value, expected):
     if expected == "integer":
         return isinstance(value, int) and not isinstance(value, bool)
     if expected == "number":
-        return (isinstance(value, (int, float)) and not isinstance(value, bool))
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
     py_type = mapping.get(expected)
     return isinstance(value, py_type) if py_type else True
 
 
 def validate_schema(schema, value, path="$"):
     if "oneOf" in schema:
-        errors = []
+        errs = []
         for branch in schema["oneOf"]:
             try:
                 validate_schema(branch, value, path)
                 return
             except ValueError as exc:
-                errors.append(str(exc))
-        raise ValueError(f"{path}: oneOf validation failed ({'; '.join(errors)})")
+                errs.append(str(exc))
+        raise ValueError(f"{path}: oneOf validation failed ({'; '.join(errs)})")
 
     expected_type = schema.get("type")
     if isinstance(expected_type, list):
         if not any(type_ok(value, t) for t in expected_type):
-            raise ValueError(f"{path}: expected one of types {expected_type}, got {type(value).__name__}")
+            raise ValueError(f"{path}: expected one of {expected_type}, got {type(value).__name__}")
     elif isinstance(expected_type, str):
         if not type_ok(value, expected_type):
-            raise ValueError(f"{path}: expected type {expected_type}, got {type(value).__name__}")
+            raise ValueError(f"{path}: expected {expected_type}, got {type(value).__name__}")
+
+    if "const" in schema and value != schema["const"]:
+        raise ValueError(f"{path}: const mismatch")
 
     enum = schema.get("enum")
     if enum is not None and value not in enum:
-        raise ValueError(f"{path}: value {value!r} not in enum {enum!r}")
+        raise ValueError(f"{path}: value not in enum")
 
     if isinstance(value, dict):
-        required = schema.get("required", [])
-        for key in required:
+        for key in schema.get("required", []):
             if key not in value:
                 raise ValueError(f"{path}: missing required key '{key}'")
-        for key, child_schema in schema.get("properties", {}).items():
+        props = schema.get("properties", {})
+        for key, child in props.items():
             if key in value:
-                validate_schema(child_schema, value[key], f"{path}.{key}")
+                validate_schema(child, value[key], f"{path}.{key}")
+        if schema.get("additionalProperties") is False:
+            unknown = set(value.keys()) - set(props.keys())
+            if unknown:
+                raise ValueError(f"{path}: unknown keys not allowed: {sorted(unknown)}")
+
+    if isinstance(value, list):
+        item_schema = schema.get("items")
+        if item_schema:
+            for idx, item in enumerate(value):
+                validate_schema(item_schema, item, f"{path}[{idx}]")
 
 
-root = Path(os.environ["ROOT"])
-policy_path = Path(os.environ["POLICY_FILE"])
 bundle_dir = Path(os.environ["BUNDLE_DIR"])
-run_network = os.environ["RUN_NETWORK"]
-run_lane = os.environ["RUN_LANE"]
+root = Path(os.environ["ROOT"])
+network_env = os.environ.get("NETWORK", "")
+manifest = json.loads((bundle_dir / "bundle_manifest.json").read_text())
+
+items = manifest.get("immutable_files", [])
+if not items:
+    raise SystemExit("manifest has no immutable_files")
+
+required_files = {"run.json", "intent.json", "checks.json"}
+paths = {item.get("path") for item in items if isinstance(item, dict)}
+missing = required_files - paths
+if missing:
+    raise SystemExit(f"manifest missing required files: {', '.join(sorted(missing))}")
+
+forbidden = {"txs.json", "approval.json", "postconditions.json"}
+for bad in forbidden:
+    if bad in paths:
+        raise SystemExit(f"manifest must not include mutable/apply artifact: {bad}")
+
+recomputed = []
+for item in items:
+    if not isinstance(item, dict):
+        raise SystemExit("manifest immutable_files must contain objects")
+    path = item.get("path")
+    if not path:
+        raise SystemExit("manifest entry missing path")
+    file_path = bundle_dir / path
+    if not file_path.exists():
+        raise SystemExit(f"missing immutable file listed in manifest: {path}")
+    data = file_path.read_bytes()
+    digest = hashlib.sha256(data).hexdigest()
+    if digest != item.get("sha256"):
+        raise SystemExit(f"hash mismatch for {path}")
+    recomputed.append({"path": path, "sha256": digest})
+
+bundle_hash_input = "\n".join([f"{i['path']}={i['sha256']}" for i in recomputed]).encode()
+expected_bundle_hash = hashlib.sha256(bundle_hash_input).hexdigest()
+if expected_bundle_hash != manifest.get("bundle_hash"):
+    raise SystemExit("bundle_hash mismatch")
+
+run = json.loads((bundle_dir / "run.json").read_text())
+intent = json.loads((bundle_dir / "intent.json").read_text())
+checks = json.loads((bundle_dir / "checks.json").read_text())
+
+run_commit = run.get("git_commit", "")
+if not run_commit:
+    raise SystemExit("run.json missing git_commit")
+
+current_commit = os.popen("git rev-parse HEAD").read().strip()
+if current_commit != run_commit:
+    raise SystemExit(f"Commit mismatch: run.json={run_commit} current={current_commit}")
+
+run_network = run.get("network", "")
+run_lane = run.get("lane", "")
+run_id = run.get("run_id", "")
+if not run_network or not run_lane or not run_id:
+    raise SystemExit("run.json missing network, lane, or run_id")
+
+if network_env and network_env != run_network:
+    raise SystemExit(f"Network mismatch: {network_env} vs {run_network}")
+
+policy_path = None
+for candidate in [
+    root / "ops/policy" / f"lane.{run_network}.json",
+    root / "ops/policy" / f"{run_network}.policy.json",
+    root / "ops/policy" / f"lane.{run_network}.example.json",
+    root / "ops/policy" / f"{run_network}.policy.example.json",
+    root / "policy" / f"{run_network}.policy.example.json",
+]:
+    if candidate.exists():
+        policy_path = candidate
+        break
+if policy_path is None:
+    raise SystemExit(f"Missing policy file for network: {run_network}")
 
 policy = json.loads(policy_path.read_text())
-lane_cfg = ((policy.get("lanes") or {}).get(run_lane) or {})
-required_checks = lane_cfg.get("required_checks", [])
-if not isinstance(required_checks, list):
-    required_checks = []
+lanes = policy.get("lanes", {})
+if run_lane not in lanes:
+    raise SystemExit(f"Lane '{run_lane}' not found in policy: {policy_path}")
 
-deploy_params_defaults = {
-    "required_networks": ["sepolia", "mainnet"],
-    "required_lanes": ["deploy"],
-    "bundle_filename": "deploy_params.json",
-    "apply_env_var": "DEPLOY_PARAMS_FILE",
-    "canonicalization": "json_sorted",
-    "allow_external_override": False,
-    "schema_file": "schemas/deploy_params.schema.json",
-    "semantic_validator_cmd": "",
-}
+lane_cfg = lanes.get(run_lane, {})
+required_inputs = lane_cfg.get("required_inputs", [])
+if required_inputs is None:
+    required_inputs = []
+if not isinstance(required_inputs, list):
+    raise SystemExit("policy lanes.<lane>.required_inputs must be a list when set")
 
-deploy_params_cfg = dict(deploy_params_defaults)
-if isinstance(policy.get("deploy_params"), dict):
-    deploy_params_cfg.update(policy["deploy_params"])
+required_kinds = []
+for item in required_inputs:
+    if isinstance(item, dict) and isinstance(item.get("kind"), str) and item.get("kind").strip():
+        required_kinds.append(item["kind"].strip())
 
-required_networks = deploy_params_cfg.get("required_networks", [])
-required_lanes = deploy_params_cfg.get("required_lanes", [])
-if not isinstance(required_networks, list):
-    required_networks = []
-if not isinstance(required_lanes, list):
-    required_lanes = []
+inputs_path = bundle_dir / "inputs.json"
+has_inputs = inputs_path.exists()
+if has_inputs and "inputs.json" not in paths:
+    raise SystemExit("inputs.json exists but is not listed in immutable manifest")
 
-requires_deploy_params = (
-    run_network in required_networks
-    and run_lane in required_lanes
-    and "deploy_params_pinned" in required_checks
-)
+if required_kinds and not has_inputs:
+    raise SystemExit(f"inputs.json required for lane '{run_lane}' (expected kind in {required_kinds})")
 
-if not requires_deploy_params:
-    print("Deploy params pinning check skipped")
-    raise SystemExit(0)
+if has_inputs:
+    schema_path = root / "schemas/inputs.schema.json"
+    if not schema_path.exists():
+        raise SystemExit(f"Missing inputs wrapper schema: {schema_path}")
 
-params_filename = str(deploy_params_cfg.get("bundle_filename", "deploy_params.json"))
-canonicalization = str(deploy_params_cfg.get("canonicalization", "json_sorted"))
-if canonicalization != "json_sorted":
-    raise SystemExit(f"unsupported deploy params canonicalization: {canonicalization}")
-params_path = bundle_dir / params_filename
-if not params_path.exists():
-    raise SystemExit(f"deploy params required but missing: {params_path}")
+    inputs_schema = json.loads(schema_path.read_text())
+    inputs = json.loads(inputs_path.read_text())
+    try:
+        validate_schema(inputs_schema, inputs)
+    except ValueError as exc:
+        raise SystemExit(f"inputs schema validation failed: {exc}")
 
-manifest = json.loads((bundle_dir / "bundle_manifest.json").read_text())
-manifest_entries = {
-    item.get("path"): item.get("sha256")
-    for item in (manifest.get("immutable_files") or [])
-    if isinstance(item, dict)
-}
-if params_filename not in manifest_entries:
-    raise SystemExit(f"deploy params not listed in immutable manifest: {params_filename}")
+    if inputs.get("network") != run_network:
+        raise SystemExit("inputs.network does not match run.json.network")
+    if inputs.get("lane") != run_lane:
+        raise SystemExit("inputs.lane does not match run.json.lane")
+    if inputs.get("run_id") != run_id:
+        raise SystemExit("inputs.run_id does not match run.json.run_id")
 
-actual_hash = hashlib.sha256(params_path.read_bytes()).hexdigest()
-if manifest_entries.get(params_filename) != actual_hash:
-    raise SystemExit("deploy params hash mismatch against manifest")
+    if required_kinds:
+        kind = str(inputs.get("kind", ""))
+        if kind not in required_kinds:
+            raise SystemExit(f"inputs.kind '{kind}' not allowed; expected one of {required_kinds}")
 
-intent = json.loads((bundle_dir / "intent.json").read_text())
-intent_hash = intent.get("deploy_params_sha256", "")
-if not intent_hash:
-    raise SystemExit("intent.json missing deploy_params_sha256")
-if intent_hash != actual_hash:
-    raise SystemExit("deploy_params_sha256 mismatch: intent vs file")
+    actual_inputs_hash = hashlib.sha256(inputs_path.read_bytes()).hexdigest()
+    intent_inputs_hash = intent.get("inputs_sha256", "")
+    if not intent_inputs_hash:
+        raise SystemExit("inputs.json present but intent.json.inputs_sha256 is missing")
+    if intent_inputs_hash != actual_inputs_hash:
+        raise SystemExit("inputs hash mismatch: intent.json.inputs_sha256 vs inputs.json")
 
-checks = json.loads((bundle_dir / "checks.json").read_text())
-if checks.get("deploy_params_pinned") is not True:
-    raise SystemExit("checks.json requires deploy_params_pinned=true")
+    if checks.get("inputs_pinned") is not True:
+        raise SystemExit("inputs.json present but checks.json.inputs_pinned is not true")
 
-schema_rel = str(deploy_params_cfg.get("schema_file", "schemas/deploy_params.schema.json"))
-schema_path = Path(schema_rel)
-if not schema_path.is_absolute():
-    schema_path = root / schema_rel
-if not schema_path.exists():
-    raise SystemExit(f"deploy params schema file not found: {schema_path}")
-
-schema = json.loads(schema_path.read_text())
-params_payload = json.loads(params_path.read_text())
-validate_schema(schema, params_payload)
-
-semantic_cmd = str(deploy_params_cfg.get("semantic_validator_cmd", "")).strip()
-if semantic_cmd:
-    env = os.environ.copy()
-    env[str(deploy_params_cfg.get("apply_env_var", "DEPLOY_PARAMS_FILE"))] = str(params_path)
-    proc = subprocess.run(semantic_cmd, shell=True, env=env, capture_output=True, text=True)
-    if proc.returncode != 0:
-        details = proc.stderr.strip() or proc.stdout.strip() or "semantic validator failed"
-        raise SystemExit(f"semantic validator failed: {details}")
-
-print(f"Deploy params pinned: {params_filename} sha256={actual_hash}")
+print("Manifest hashes verified")
+if has_inputs:
+    print("Inputs wrapper verified")
+print(f"Bundle verified: {bundle_dir}")
 PY
-
-echo "Bundle verified: $BUNDLE_DIR"

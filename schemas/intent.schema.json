@@ -18,7 +18,7 @@
     "lane": {
       "type": "string"
     },
-    "deploy_params_sha256": {
+    "inputs_sha256": {
       "type": "string"
     },
     "signer_alias": {
