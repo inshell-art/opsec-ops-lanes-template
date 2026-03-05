@@ -11,6 +11,9 @@ For trust tiers and claim-verification format, see `docs/agent-trust-model.md`.
 - Optional: `BUNDLE_PATH` (local path to a bundle directory)
 - Optional for lanes with `required_inputs`: `INPUTS_TEMPLATE` (path to locked inputs wrapper JSON)
 - Required before bundling high-entropy params: `INPUT_FILE` (for `ops/tools/lock_inputs.sh`)
+- Required for Sepolia/Mainnet deploy-lane production validation: `PARAMS_SCHEMA` (project-specific strict schema)
+- Recommended for Sepolia/Mainnet deploy-lane production validation: `STRICT_PARAMS_SCHEMA=1`
+- Escape hatch for template example schemas on Sepolia/Mainnet: `ALLOW_EXAMPLE_PARAMS_SCHEMA=1` (not recommended)
 - Optional (mainnet only): `REHEARSAL_PROOF_RUN_ID` (run id of the rehearsal proof bundle)
 - Backward-compatible proof env fallback: `DEVNET_PROOF_RUN_ID`, then `SEPOLIA_PROOF_RUN_ID`
 
@@ -55,6 +58,7 @@ For trust tiers and claim-verification format, see `docs/agent-trust-model.md`.
    - rejects mismatched external `INPUTS_FILE` override
    - no manual calldata/addresses at apply time
    - no LLM calls during apply
+   - keystore env vars + address env vars only (no `*_PRIVATE_KEY` export)
 
 5. Postconditions:
    - Run `ops/tools/postconditions.sh` to record on-chain verification.
@@ -74,6 +78,16 @@ Note: mainnet write lanes default to:
 - `gates.rehearsal_proof_network: "devnet"`
 
 Downstreams may explicitly set `gates.require_rehearsal_proof: false` per lane if they consciously relax the gate.
+
+## Keystore-first contract
+- Never export raw private keys in shell history or CI logs.
+- Use policy-aligned env vars: `*_DEPLOY_KEYSTORE_JSON` + `*_DEPLOY_ADDRESS`.
+- Set `*_DEPLOY_ADDRESS` from keystore metadata (`.address`), not from private-key derivation flows.
+
+## Schema discipline for required inputs
+- For Sepolia/Mainnet deploy lanes, use downstream strict schemas with `STRICT_PARAMS_SCHEMA=1`.
+- Template `examples/inputs/*.example.json` schemas are minimal guidance only.
+- Recommended downstream schema naming: `schemas/params/<kind>.<contract>.<lane>.schema.json`.
 
 ## CI hardening defaults
 - Pin GitHub Actions to commit SHAs.

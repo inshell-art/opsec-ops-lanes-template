@@ -21,10 +21,17 @@ These scripts validate the template audit module contracts in an isolated tempor
     - external override fails apply
     - valid pinned inputs pass verify/apply and are recorded in apply evidence
     - mainnet rehearsal-proof gate remains enforced
+- `../ops/tests/test_lock_inputs.sh`
+  - Verifies lock-inputs guardrails:
+    - realistic string params pass
+    - placeholder token rejection works
+    - strict mode requires `PARAMS_SCHEMA`
+    - Sepolia example-schema refusal and override behavior
 
 ## Usage
 ```bash
 examples/scaffold/tests/audit_smoke.sh
 examples/scaffold/tests/audit_negative.sh
 examples/scaffold/tests/inputs_gate.sh
+examples/scaffold/ops/tests/test_lock_inputs.sh
 ```

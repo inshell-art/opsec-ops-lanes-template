@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-03-05
+
+### hardening: inputs schema discipline + keystore-first guidance
+
+- Hardened `examples/scaffold/ops/tools/lock_inputs.sh`:
+  - added `STRICT_PARAMS_SCHEMA` and `ALLOW_EXAMPLE_PARAMS_SCHEMA` guardrails
+  - refuses template example schemas on `sepolia`/`mainnet` by default
+  - records `source.params_schema_path_hint` and `source.params_schema_sha256` when schema validation is used
+  - updated placeholder-token invariants to reject obvious placeholders (`0xYour`, `REPLACE_ME`, `<SET_`, `<TODO>`, `TODO`)
+- Added schema examples/templates:
+  - `examples/inputs/params.constructor_params.minimal.schema.example.json`
+  - `examples/inputs/params.constructor_params.strict.schema.template.json`
+- Kept backward-compatible schema alias:
+  - `examples/inputs/params.constructor_params.schema.example.json` now marked as deprecated compat alias
+- Added scaffold regression coverage:
+  - `examples/scaffold/ops/tests/test_lock_inputs.sh`
+  - `examples/scaffold/.github/workflows/ops_tests.yml`
+- Updated docs and contracts for keystore-first + schema-discipline requirements:
+  - `docs/integration.md`
+  - `docs/pipeline-reference.md`
+  - `codex/BUSINESS_REPO_ADOPTION.md`
+  - `docs/snippets/root-AGENTS-ops-agent-contract.md`
+  - `AGENTS.md`
+
+### migration notes (downstream repos)
+
+- For Sepolia/Mainnet deploy-lane input locking, set:
+  - `STRICT_PARAMS_SCHEMA=1`
+  - `PARAMS_SCHEMA=schemas/params/<kind>.<contract>.<lane>.schema.json`
+- Do not use template `examples/inputs/*.example.json` schemas as production strict validation.
+- Do not use `*_PRIVATE_KEY` export flows; keep keystore-first env patterns (`*_DEPLOY_KEYSTORE_JSON` + `*_DEPLOY_ADDRESS`).
+
 ## 2026-03-04
 
 ### breaking: replace deploy-params gate with first-class `inputs.json`

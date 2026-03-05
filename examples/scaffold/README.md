@@ -7,10 +7,12 @@ This scaffold is a runnable reference baseline. Adapt `ops/tools/` for your repo
 
 ## Layout
 - `ops/` — policy, runbooks, and tooling wrappers
+- `ops/tests/` — regression tests for ops helper scripts
 - `artifacts/` — generated intents, checks, approvals, and snapshots
 - `bundles/` — immutable bundles produced by CI and consumed by Signing OS
 - `audits/` — generated audit plans, evidence indexes, reports, findings, and signoffs
 - `.github/workflows/ops_bundle.yml` — example CI workflow (copy into downstream repo)
+- `.github/workflows/ops_tests.yml` — lock-inputs regression test workflow
 - `.env.example` — local-only environment variables (no secrets)
 
 ## How to use
@@ -22,11 +24,12 @@ This scaffold is a runnable reference baseline. Adapt `ops/tools/` for your repo
 
 ## CI and rehearsal guidance
 - CI builds **bundles** (run/intent/checks + manifest) and uploads artifacts.
-- Apply happens only on a Signing OS with keystore mode.
+- Apply happens only on a Signing OS with keystore mode (no raw `*_PRIVATE_KEY` exports).
 - After apply, run postconditions to record chain verification.
 - Run periodic `audit-all` to validate process controls over lane artifacts.
 - Use `audit-gate` for release branches/tags.
 - Sepolia/Mainnet deploy lanes require pinned `inputs.json` by default (`required_inputs`, generated via `ops/tools/lock_inputs.sh` and passed as `INPUTS_TEMPLATE`).
+- For Sepolia/Mainnet deploy lanes, use downstream strict `PARAMS_SCHEMA` with `STRICT_PARAMS_SCHEMA=1`.
 - No LLM calls are allowed at apply time.
 - HOT wallets are not ops-lane signers.
 

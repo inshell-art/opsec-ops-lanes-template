@@ -1,0 +1,21 @@
+name: Ops Tests (CI)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "ops/**"
+      - "schemas/**"
+      - "policy/**"
+      - ".github/workflows/ops_tests.yml"
+
+jobs:
+  lock-inputs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: Run lock-inputs regression tests
+        run: ./ops/tests/test_lock_inputs.sh
