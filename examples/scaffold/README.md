@@ -25,7 +25,7 @@ This scaffold is a runnable reference baseline. Adapt `ops/tools/` for your repo
 ## CI and rehearsal guidance
 - CI builds **bundles** (run/intent/checks + manifest) and uploads artifacts.
 - Apply happens only on a Signing OS with keystore mode (no raw `*_PRIVATE_KEY` exports).
-- After apply, run postconditions to record chain verification.
+- After apply, run postconditions to record chain verification (`POSTCONDITIONS_MODE=auto` default).
 - Run periodic `audit-all` to validate process controls over lane artifacts.
 - Use `audit-gate` for release branches/tags.
 - Sepolia/Mainnet deploy lanes require pinned `inputs.json` by default (`required_inputs`, generated via `ops/tools/lock_inputs.sh` and passed as `INPUTS_TEMPLATE`).

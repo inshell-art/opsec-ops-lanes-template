@@ -21,6 +21,12 @@ These scripts validate the template audit module contracts in an isolated tempor
     - external override fails apply
     - valid pinned inputs pass verify/apply and are recorded in apply evidence
     - mainnet rehearsal-proof gate remains enforced
+- `postconditions_mode.sh`
+  - Verifies postconditions mode behavior:
+    - auto-mode happy path passes
+    - missing `txs.json` auto-fails
+    - failing `checks.path.json` auto-fails
+    - manual mode remains compatible and requires explicit `POSTCONDITIONS_STATUS`
 - `../ops/tests/test_lock_inputs.sh`
   - Verifies lock-inputs guardrails:
     - realistic string params pass
@@ -33,5 +39,6 @@ These scripts validate the template audit module contracts in an isolated tempor
 examples/scaffold/tests/audit_smoke.sh
 examples/scaffold/tests/audit_negative.sh
 examples/scaffold/tests/inputs_gate.sh
+examples/scaffold/tests/postconditions_mode.sh
 examples/scaffold/ops/tests/test_lock_inputs.sh
 ```

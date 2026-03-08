@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-03-08
+
+### feat: auto postconditions mode with deterministic status
+
+- Updated `examples/scaffold/ops/tools/postconditions.sh`:
+  - new `POSTCONDITIONS_MODE` with default `auto` (`manual` compatibility retained)
+  - auto mode deterministically evaluates required predicates:
+    - `txs.json` present
+    - `verify_bundle.sh` passes for the same bundle
+    - if `checks.path.json` exists, it must have `pass: true`
+    - deploy lane requires `snapshots/post_state.json`
+  - optional receipt check (`receipts_success`) when tx hashes exist and `RECEIPT_RPC_URL`/`ETH_RPC_URL`/`RPC_URL` is provided
+  - output now includes `mode`, deterministic check entries, and `failure_reasons`
+  - manual mode keeps `POSTCONDITIONS_STATUS=pending|pass|fail` with explicit-status requirement
+- Updated scaffold docs/examples:
+  - `examples/scaffold/ops/tools/README.md`
+  - `examples/scaffold/ops/runbooks/deploy.md`
+  - `examples/scaffold/ops/runbooks/handoff.md`
+  - `examples/scaffold/ops/runbooks/govern.md`
+  - `examples/scaffold/README.md`
+- Added test coverage:
+  - `examples/scaffold/tests/postconditions_mode.sh`
+  - `examples/scaffold/tests/README.md`
+  - `examples/scaffold/.github/workflows/ops_tests.yml` runs postconditions-mode tests
+- Tightened `AUD-006` in scaffold audit verifier:
+  - deploy-lane applied runs now require `postconditions.status == pass`
+
 ## 2026-03-05
 
 ### hardening: inputs schema discipline + keystore-first guidance
