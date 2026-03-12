@@ -19,6 +19,8 @@
 - Added scaffold regression coverage:
   - `examples/scaffold/tests/bundle_workflow_inputs.sh`
   - `examples/scaffold/.github/workflows/ops_tests.yml` now runs the workflow-equivalent locked-input test
+- Added a repo-root GitHub Actions harness so the template repo can execute the scaffold regression remotely:
+  - `.github/workflows/scaffold_bundle_harness.yml`
 
 ## 2026-03-08
 
