@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-03-12
+
+### fix: align scaffold CI bundle workflow with locked-input deploy lanes
+
+- Updated `examples/scaffold/.github/workflows/ops_bundle.yml`:
+  - keeps `workflow_dispatch` and read-only permissions
+  - accepts `network`, `lane`, optional `run_id`, and optional `inputs_json`
+  - resolves `required_inputs` from lane policy instead of hardcoding lane/network rules
+  - when `inputs_json` is supplied, writes it to `artifacts/<network>/current/inputs/inputs.<run_id>.json`
+  - passes `INPUTS_TEMPLATE` to `ops/tools/bundle.sh`
+  - fails clearly when lane policy requires inputs and `inputs_json` is missing
+  - keeps raw params and signer secrets out of CI
+- Updated docs to clarify the split:
+  - remote CI builds/uploads bundles only
+  - local Signing OS runs `verify`, `approve`, `apply`, and `postconditions`
+  - `inputs_json` is the locked wrapper output of `ops/tools/lock_inputs.sh`, produced outside CI
+- Added scaffold regression coverage:
+  - `examples/scaffold/tests/bundle_workflow_inputs.sh`
+  - `examples/scaffold/.github/workflows/ops_tests.yml` now runs the workflow-equivalent locked-input test
+
 ## 2026-03-08
 
 ### feat: auto postconditions mode with deterministic status

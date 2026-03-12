@@ -8,6 +8,7 @@ on:
       - "tests/**"
       - "schemas/**"
       - "policy/**"
+      - ".github/workflows/ops_bundle.yml"
       - ".github/workflows/ops_tests.yml"
 
 jobs:
@@ -30,3 +31,13 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
       - name: Run postconditions mode tests
         run: ./tests/postconditions_mode.sh
+
+  bundle-workflow-inputs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: Run bundle workflow locked-input tests
+        run: ./tests/bundle_workflow_inputs.sh

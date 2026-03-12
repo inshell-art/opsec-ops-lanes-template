@@ -1,4 +1,4 @@
-# Scaffold audit tests
+# Scaffold tests
 
 These scripts validate the template audit module contracts in an isolated temporary scaffold checkout.
 
@@ -27,6 +27,12 @@ These scripts validate the template audit module contracts in an isolated tempor
     - missing `txs.json` auto-fails
     - failing `checks.path.json` auto-fails
     - manual mode remains compatible and requires explicit `POSTCONDITIONS_STATUS`
+- `bundle_workflow_inputs.sh`
+  - Verifies the scaffold CI bundle workflow shape for locked-input deploy lanes:
+    - sepolia/mainnet deploy succeeds when valid `inputs_json` is supplied
+    - required-input lane fails clearly when `inputs_json` is missing
+    - CI-like bundle path writes `artifacts/<network>/current/inputs/inputs.<run_id>.json`
+    - bundled `inputs.json` is pinned into `intent.json.inputs_sha256`
 - `../ops/tests/test_lock_inputs.sh`
   - Verifies lock-inputs guardrails:
     - realistic string params pass
@@ -40,5 +46,6 @@ examples/scaffold/tests/audit_smoke.sh
 examples/scaffold/tests/audit_negative.sh
 examples/scaffold/tests/inputs_gate.sh
 examples/scaffold/tests/postconditions_mode.sh
+examples/scaffold/tests/bundle_workflow_inputs.sh
 examples/scaffold/ops/tests/test_lock_inputs.sh
 ```

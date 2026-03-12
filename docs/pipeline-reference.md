@@ -10,6 +10,7 @@ For trust tiers and claim-verification format, see `docs/agent-trust-model.md`.
 - `AUDIT_ID` (string; for periodic/release audit runs)
 - Optional: `BUNDLE_PATH` (local path to a bundle directory)
 - Optional for lanes with `required_inputs`: `INPUTS_TEMPLATE` (path to locked inputs wrapper JSON)
+- For the scaffold CI workflow example: `inputs_json` (locked wrapper JSON string produced outside CI by `ops/tools/lock_inputs.sh`)
 - Required before bundling high-entropy params: `INPUT_FILE` (for `ops/tools/lock_inputs.sh`)
 - Required for Sepolia/Mainnet deploy-lane production validation: `PARAMS_SCHEMA` (project-specific strict schema)
 - Recommended for Sepolia/Mainnet deploy-lane production validation: `STRICT_PARAMS_SCHEMA=1`
@@ -25,17 +26,22 @@ For trust tiers and claim-verification format, see `docs/agent-trust-model.md`.
   - `snapshots/*`
   - `postconditions.json`
 
-## Remote CI (plan + checks only)
+## Remote CI (bundle only, no secrets, no signing)
 1. Checkout repo (pinned action SHA).
 2. Build/test (read-only).
-3. Generate bundle:
-   - for lanes with `required_inputs`, run `ops/tools/lock_inputs.sh` first and pass `INPUTS_TEMPLATE=<locked_wrapper_path>`
+3. If the lane requires inputs:
+   - produce the locked wrapper outside CI with `ops/tools/lock_inputs.sh`
+   - pass that wrapper into the workflow as `inputs_json`
+   - the scaffold workflow writes it to `artifacts/<network>/current/inputs/inputs.<run_id>.json`
+   - the workflow passes `INPUTS_TEMPLATE=<that_path>` to `ops/tools/bundle.sh`
+   - do not pass raw constructor params into CI
+4. Generate bundle:
    - `run.json` (includes git SHA)
    - `intent.json` (EVM call or Safe payload)
    - `checks.json` (read/sim only; includes bytecode/proxy checks for writes)
    - `inputs.json` for lanes that declare `required_inputs` (Sepolia/Mainnet deploy default)
    - `bundle_manifest.json` (hashes immutable files)
-4. Upload bundle artifact.
+5. Upload bundle artifact.
 
 ## Local CD (Signing OS only)
 1. Pull bundle from AIRLOCK into `bundles/<network>/<run_id>/`.
@@ -62,8 +68,9 @@ For trust tiers and claim-verification format, see `docs/agent-trust-model.md`.
 
 5. Postconditions:
    - Run `ops/tools/postconditions.sh` to record on-chain verification.
-   - Set `POSTCONDITIONS_STATUS=pass` after verification.
-   - Persist `txs.json`, `snapshots/*`, and `postconditions.json`.
+   - default is `POSTCONDITIONS_MODE=auto`
+   - manual override remains available via `POSTCONDITIONS_MODE=manual POSTCONDITIONS_STATUS=pass|fail|pending`
+   - persist `txs.json`, `snapshots/*`, and `postconditions.json`
 
 6. Periodic/release audit (recommended):
    - `ops/tools/audit_plan.sh`
